@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-surface-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}IDX Copilot{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'dist/app.css' %}">
+</head>
+<body class="min-h-full bg-surface-950 text-gray-100 antialiased">
+    {% include "components/mobile_header.html" %}
+    <div class="flex min-h-screen">
+        {% include "components/sidebar.html" %}
+        <main class="min-w-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "sectors-copilot-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "tailwindcss -i ./static/src/input.css -o ./static/dist/app.css --watch",
+    "build": "tailwindcss -i ./static/src/input.css -o ./static/dist/app.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^4.1.4"
+  }
+}

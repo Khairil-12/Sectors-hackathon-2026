@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-surface-900: #0f172a;
+  --color-surface-950: #020617;
+  --shadow-panel: 0 10px 30px rgba(2, 6, 23, 0.25);
+}
+
+@source "../../templates/**/*.html";
+@source "../../copilot_engine/templates/**/*.html";
+@source "../**/*.js";
