@@ -1,6 +1,7 @@
 .env
 .env.*
-!.env.template
+.venv/
+*.bak
 __pycache__/
 *.py[cod]
 db.sqlite3
