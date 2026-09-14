@@ -3,10 +3,14 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "tailwindcss -i ./static/src/input.css -o ./static/dist/app.css --watch",
-    "build": "tailwindcss -i ./static/src/input.css -o ./static/dist/app.css --minify"
+    "tailwind:watch": "tailwindcss -i ./static/src/input.css -o ./static/dist/app.css --watch",
+    "tailwind:build": "tailwindcss -i ./static/src/input.css -o ./static/dist/app.css --minify",
+    "django:run": "uv run manage.py runserver",
+    "dev": "concurrently --kill-others \"npm run tailwind:watch\" \"npm run django:run\""
   },
   "devDependencies": {
+    "@tailwindcss/cli": "^4.1.4",
+    "concurrently": "^10.0.5",
     "tailwindcss": "^4.1.4"
   }
 }

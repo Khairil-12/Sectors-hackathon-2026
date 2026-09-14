@@ -9,5 +9,5 @@
 }
 
 @source "../../templates/**/*.html";
-@source "../../copilot_engine/templates/**/*.html";
+@source "../../src/research/templates/**/*.html";
 @source "../**/*.js";

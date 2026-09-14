@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Watchlist - IDX Copilot{% endblock %}
+{% block content %}
+<section class="mx-auto max-w-6xl space-y-8">
+    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p class="text-sm text-brand-500">Portfolio tools</p><h1 class="mt-2 text-3xl font-bold">Watchlist</h1><p class="mt-2 text-slate-400">Monitor symbols before starting deeper research.</p></div><a href="{% url 'research:workspace' %}" class="rounded-md bg-brand-600 px-4 py-2 text-center text-sm font-medium hover:bg-brand-500">New analysis</a></div>
+    <div class="rounded-lg border border-dashed border-slate-800 bg-surface-900/50 p-12 text-center"><h2 class="font-semibold">Your watchlist is empty</h2><p class="mt-2 text-sm text-slate-400">Analyze a stock, then add it to your watchlist.</p></div>
+</section>
+{% endblock %}

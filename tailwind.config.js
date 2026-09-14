@@ -5,7 +5,7 @@
   ],
   "content": [
     "./templates/**/*.html",
-    "./copilot_engine/templates/**/*.html",
+    "./src/research/templates/**/*.html",
     "./static/**/*.js"
   ],
   "theme": {
