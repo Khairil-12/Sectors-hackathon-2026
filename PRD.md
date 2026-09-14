@@ -276,49 +276,50 @@ COPILOT_REPORT_SCHEMA = {
 Django serves HTML templates and JSON endpoints. Tailwind compiles source CSS into Django static files. Browser code never receives `GROQ_API_KEY` or `SECTORS_API_KEY`.
 
 ```
-sectors_copilot/
+Sectors-hackathon-2026/
 ├── manage.py
+├── pyproject.toml
+├── uv.lock
 ├── requirements.txt
 ├── package.json
 ├── tailwind.config.js
 ├── postcss.config.js
-├── sectors_copilot/
+├── config/
 │   ├── __init__.py
 │   ├── settings.py
 │   ├── urls.py
 │   ├── asgi.py
 │   └── wsgi.py
-├── copilot_engine/
-│   ├── __init__.py
-│   ├── admin.py
-│   ├── apps.py
-│   ├── forms.py                 # Prompt, symbol, date, watchlist forms
-│   ├── models.py                # Saved reports, watchlist, query history
-│   ├── urls.py
-│   ├── views.py                 # HTML pages and JSON/API views
-│   ├── serializers.py           # API response serialization
-│   ├── schemas.py               # Groq JSON schemas and validation
-│   ├── services/
-│   │   ├── __init__.py
-│   │   ├── groq_client.py       # Groq structured-output client
-│   │   ├── sectors_api.py       # Sectors Financial API client
-│   │   ├── cache.py             # Django cache keys, TTLs, and helpers
-│   │   └── orchestrator.py      # Intent, data fetching, and synthesis flow
-│   ├── templates/
-│   │   └── copilot_engine/
-│   │       ├── workspace.html
-│   │       ├── report.html
-│   │       ├── comparison.html
-│   │       ├── screener.html
-│   │       ├── dashboard.html
-│   │       ├── watchlist.html
-│   │       └── saved_reports.html
-│   └── tests/
-│       ├── test_intent.py
-│       ├── test_sectors_api.py
-│       ├── test_synthesis.py
-│       ├── test_views.py
-│       └── test_ui.py
+├── src/
+│   └── research/
+│       ├── __init__.py
+│       ├── admin.py
+│       ├── apps.py
+│       ├── forms.py                 # Prompt, symbol, date, watchlist forms
+│       ├── models.py                # Saved reports, watchlist, query history
+│       ├── urls.py
+│       ├── views.py                 # HTML pages and JSON/API views
+│       ├── serializers.py           # API response serialization
+│       ├── schemas.py               # Groq JSON schemas and validation
+│       ├── services/
+│       │   ├── __init__.py
+│       │   ├── groq_client.py       # Groq structured-output client
+│       │   ├── sectors_api.py       # Sectors Financial API client
+│       │   ├── cache.py             # Django cache keys, TTLs, and helpers
+│       │   └── orchestrator.py      # Intent, data fetching, and synthesis flow
+│       ├── templates/
+│       │   └── research/
+│       │       ├── workspace.html
+│       │       ├── report.html
+│       │       ├── comparison.html
+│       │       ├── screener.html
+│       │       ├── dashboard.html
+│       │       ├── watchlist.html
+│       │       └── saved_reports.html
+│       └── tests/
+│           ├── test_schemas.py
+│           ├── test_sectors_api.py
+│           └── test_views.py
 ├── templates/
 │   ├── base.html                # Global document shell and Tailwind assets
 │   └── components/
@@ -384,7 +385,7 @@ Use `{% load static %}` and `{% static 'dist/app.css' %}` in `templates/base.htm
 export default {
   content: [
     "./templates/**/*.html",
-    "./copilot_engine/templates/**/*.html",
+    "./src/research/templates/**/*.html",
     "./static/**/*.js"
   ]
 }
@@ -394,13 +395,13 @@ export default {
 
 | Route | View | Template | Purpose |
 |---|---|---|---|
-| `/` | `workspace` | `copilot_engine/workspace.html` | Submit natural-language research requests |
-| `/report/<id>/` | `report_detail` | `copilot_engine/report.html` | View structured research report |
-| `/compare/` | `comparison` | `copilot_engine/comparison.html` | Compare multiple IDX symbols |
-| `/screener/` | `screener` | `copilot_engine/screener.html` | Search and filter IDX companies |
-| `/dashboard/` | `dashboard` | `copilot_engine/dashboard.html` | Market and watchlist overview |
-| `/watchlist/` | `watchlist` | `copilot_engine/watchlist.html` | Manage tracked symbols |
-| `/saved-reports/` | `saved_reports` | `copilot_engine/saved_reports.html` | Browse saved analyses |
+| `/` | `workspace` | `research/workspace.html` | Submit natural-language research requests |
+| `/report/<id>/` | `report_detail` | `research/report.html` | View structured research report |
+| `/compare/` | `comparison` | `research/comparison.html` | Compare multiple IDX symbols |
+| `/screener/` | `screener` | `research/screener.html` | Search and filter IDX companies |
+| `/dashboard/` | `dashboard` | `research/dashboard.html` | Market and watchlist overview |
+| `/watchlist/` | `watchlist` | `research/watchlist.html` | Manage tracked symbols |
+| `/saved-reports/` | `saved_reports` | `research/saved_reports.html` | Browse saved analyses |
 
 JSON endpoints may be placed under `/api/` and must keep credentials server-side. Use Django CSRF protection for browser POST requests.
 
@@ -408,13 +409,13 @@ JSON endpoints may be placed under `/api/` and must keep credentials server-side
 
 ## 9. Implementation Reference Code (Django + Groq + Sectors)
 
-### `copilot_engine/services/groq_client.py`
+### `src/research/services/groq_client.py`
 
 ```python
 import os
 import json
 from openai import OpenAI
-from copilot_engine.schemas import INTENT_PARSER_SCHEMA, COPILOT_REPORT_SCHEMA
+from research.schemas import INTENT_PARSER_SCHEMA, COPILOT_REPORT_SCHEMA
 
 client = OpenAI(
     api_key=os.environ.get("GROQ_API_KEY"),
