@@ -259,9 +259,20 @@ Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser to access th
 | Command | Description |
 |---|---|
 | `npm run dev` | Launch both Tailwind watcher and Django server concurrently. |
+| `npm run build` | Minify and compile production CSS bundle (`static/dist/app.css`). |
+| `npm run build:prod` | Build CSS bundle and run Django `collectstatic`. |
 | `npm run tailwind:watch` | Watch `./static/src/input.css` and recompile to `./static/dist/app.css`. |
 | `npm run tailwind:build` | Minify and compile production CSS bundle. |
 | `npm run django:run` | Start Django server through npm script runner. |
+
+### Production Deployment Build
+
+For automated deployment pipelines (Render, Railway, Fly.io, Linux VPS, Docker):
+
+```bash
+# Execute universal automated build script:
+./build.sh
+```
 
 ---
 
