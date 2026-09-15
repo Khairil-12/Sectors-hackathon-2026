@@ -5,7 +5,11 @@
 __pycache__/
 *.py[cod]
 # SQLite database isolation
-database/
+database/*.sqlite3
+database/*.sqlite3-*
+database/*.sqlite3-journal
+database/*.sqlite3-wal
+!database/.gitkeep
 *.sqlite3
 *.sqlite3-journal
 *.sqlite3-wal
