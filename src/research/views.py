@@ -125,37 +125,30 @@ def screener(request):
     try:
         if preset == "banks":
             data = sectors_api.get_screener(
-                where="sub_sector = 'Banks' and market_cap > 0",
-                order_by="-market_cap",
-                limit=20,
+                q="top banks with strong return on equity and growing assets. Show market cap, forward PE, PB ratio, dividend yield, and sub sector for each company."
             )
             results = data.get("results", data) if isinstance(data, dict) else data
             query = "Top IDX Banking Institutions"
         elif preset == "dividends":
             data = sectors_api.get_screener(
-                where="yield_ttm > 0 and market_cap > 0",
-                order_by="-yield_ttm",
-                limit=20,
+                q="companies with high dividend yield and stable cash flow. Show market cap, forward PE, PB ratio, dividend yield, and sub sector for each company."
             )
             results = data.get("results", data) if isinstance(data, dict) else data
             query = "High Dividend Yield Stocks"
         elif preset == "value":
             data = sectors_api.get_screener(
-                where="pe_ttm > 0 and pb_mrq > 0 and market_cap > 0",
-                order_by="pe_ttm",
-                limit=20,
+                q="undervalued companies with low price to earnings and low price to book. Show market cap, forward PE, PB ratio, dividend yield, and sub sector for each company."
             )
             results = data.get("results", data) if isinstance(data, dict) else data
             query = "Undervalued Value Opportunities"
         elif query:
-            data = sectors_api.get_screener(q=query)
+            data = sectors_api.get_screener(
+                q=f"{query}. Show market cap, PE ratio, PB ratio, dividend yield, and subsector for each company."
+            )
             results = data.get("results", data) if isinstance(data, dict) else data
         else:
-            # Default screener view: top 20 IDX companies by market cap with structured fields
             data = sectors_api.get_screener(
-                where="market_cap > 0",
-                order_by="-market_cap",
-                limit=20,
+                q="top 20 companies by market cap, PE ratio, PB ratio, dividend yield, and subsector"
             )
             results = data.get("results", data) if isinstance(data, dict) else data
     except SectorsAPIError as error:
@@ -197,7 +190,10 @@ def screener(request):
                     or qv.get("dividend_yield")
                     or qv.get("total_yield")
                     or qv.get("yield")
+                    or next((value for key, value in qv.items() if key.startswith("total_yield[")), None)
                 )
+                if isinstance(div_yield, (int, float)) and abs(div_yield) <= 1:
+                    div_yield *= 100
                 sub_sec = (
                     item.get("sub_sector")
                     or item.get("sub_industry")
