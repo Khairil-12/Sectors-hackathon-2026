@@ -6,6 +6,47 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 
+def _safe_num(value: Any) -> float | None:
+    if value is None or value == "" or (isinstance(value, float) and value != value):
+        return None
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _safe_int(value: Any) -> int | None:
+    """Convert a value to int, returning None for None/empty/non-integer."""
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _safe_str(value: Any) -> str | None:
+    """Convert a value to str, returning None for None/empty."""
+    if value is None:
+        return None
+    s = str(value).strip()
+    return s if s else None
+
+
+def _safe_list(value: Any) -> list[Any] | None:
+    """Return list if value is a non-empty list, else None."""
+    if isinstance(value, list) and len(value) > 0:
+        return value
+    return None
+
+
+def _safe_dict(value: Any) -> dict[str, Any] | None:
+    """Return dict if value is a non-empty dict, else None."""
+    if isinstance(value, dict) and len(value) > 0:
+        return value
+    return None
+
+
 def distill_company_report(data: Any) -> dict[str, Any]:
     """Extracts only critical valuation and financial indicators from company report."""
     if not isinstance(data, dict) or "error" in data:
@@ -14,22 +55,132 @@ def distill_company_report(data: Any) -> dict[str, Any]:
     overview = data.get("overview", {}) if isinstance(data.get("overview"), dict) else {}
     valuation = data.get("valuation", {}) if isinstance(data.get("valuation"), dict) else {}
     financials = data.get("financials", {}) if isinstance(data.get("financials"), dict) else {}
+    dividend = data.get("dividend", {}) if isinstance(data.get("dividend"), dict) else {}
+    management = data.get("management", {}) if isinstance(data.get("management"), dict) else {}
+    ownership = data.get("ownership", {}) if isinstance(data.get("ownership"), dict) else {}
+    peers = data.get("peers", []) if isinstance(data.get("peers"), list) else []
+
+    # --- overview fields ---
+    company_name = overview.get("company_name")
+    industry = overview.get("industry")
+    sub_sector = overview.get("sub_sector")
+    sector = overview.get("sector")
+    listing_board = overview.get("listing_board")
+    employee_num = overview.get("employee_num")
+    listing_date = overview.get("listing_date")
+    website = overview.get("website")
+    phone = overview.get("phone")
+    email = overview.get("email")
+    last_close_price = overview.get("last_close_price")
+    latest_close_date = overview.get("latest_close_date")
+    all_time_price = overview.get("all_time_price")
+
+    # --- valuation fields ---
+    pe_ratio = valuation.get("pe_ratio")
+    intrinsic_value = valuation.get("intrinsic_value")
+    forward_pe = valuation.get("forward_pe")
+    historical_valuation = valuation.get("historical_valuation")  # list of dicts
+
+    # --- future / analyst forecasts ---
+    company_value_forecasts = valuation.get("company_value_forecasts") if isinstance(valuation.get("company_value_forecasts"), list) else []
+    company_growth_forecasts = valuation.get("company_growth_forecasts") if isinstance(valuation.get("company_growth_forecasts"), list) else []
+    analyst_rating_breakdown = valuation.get("analyst_rating_breakdown")
+
+    # --- financials ---
+    eps = financials.get("eps")
+    historical_eps = financials.get("historical_eps")
+    historical_financials = financials.get("historical_financials")
+
+    # --- dividend ---
+    historical_dividends = dividend.get("historical_dividends")
+    upcoming_dividends = dividend.get("upcoming_dividends")
+    yield_ttm = dividend.get("yield_ttm")
+    dividend_yield_avg = dividend.get("dividend_yield_avg")
+    dividend_ttm = dividend.get("dividend_ttm")
+    payout_ratio = dividend.get("payout_ratio")
+    cash_payout_ratio = dividend.get("cash_payout_ratio")
+    last_ex_dividend_date = dividend.get("last_ex_dividend_date")
+
+    # --- management ---
+    key_executives = management.get("key_executives", [])
+    executives_shareholdings = management.get("executives_shareholdings", [])
+
+    # --- ownership ---
+    major_shareholders = ownership.get("major_shareholders", [])
+    top_transactions = ownership.get("top_transactions")
+    institutional_transaction_flow = ownership.get("institutional_transaction_flow")
+    whale_investors = ownership.get("whale_investors")
+    conglomerates_group = ownership.get("conglomerates_group")
+
+    # --- peers ---
+    peers_data = peers[0] if peers else None if isinstance(peers, list) and len(peers) > 0 else None
 
     return {
         "symbol": overview.get("symbol"),
-        "name": overview.get("company_name"),
-        "sector": overview.get("industry") or overview.get("sector"),
-        "sub_sector": overview.get("sub_sector"),
-        "market_cap": overview.get("market_cap"),
-        "pe_ratio": valuation.get("pe_ratio"),
-        "pb_ratio": valuation.get("pb_ratio"),
-        "ps_ratio": valuation.get("ps_ratio"),
-        "dividend_yield": valuation.get("dividend_yield"),
-        "roe": valuation.get("roe"),
-        "roa": valuation.get("roa"),
-        "revenue": financials.get("revenue"),
-        "net_income": financials.get("net_income"),
-        "total_assets": financials.get("total_assets"),
+        "company_name": company_name,
+        "name": company_name,
+        "industry": industry,
+        "sub_sector": sub_sector,
+        "sector": sector,
+        "listing_board": listing_board,
+        "employee_num": _safe_int(employee_num),
+        "listing_date": _safe_str(listing_date),
+        "website": _safe_str(website),
+        "phone": _safe_str(phone),
+        "email": _safe_str(email),
+        "last_close_price": _safe_num(last_close_price),
+        "latest_close_date": _safe_str(latest_close_date),
+        "all_time_price": {
+            "ytd_low": all_time_price.get("ytd_low") if isinstance(all_time_price, dict) else None,
+            "52_w_low": all_time_price.get("52_w_low") if isinstance(all_time_price, dict) else None,
+            "90_d_low": all_time_price.get("90_d_low") if isinstance(all_time_price, dict) else None,
+            "ytd_high": all_time_price.get("ytd_high") if isinstance(all_time_price, dict) else None,
+            "52_w_high": all_time_price.get("52_w_high") if isinstance(all_time_price, dict) else None,
+            "90_d_high": all_time_price.get("90_d_high") if isinstance(all_time_price, dict) else None,
+            "all_time_low": all_time_price.get("all_time_low") if isinstance(all_time_price, dict) else None,
+            "all_time_high": all_time_price.get("all_time_high") if isinstance(all_time_price, dict) else None,
+        },
+        # --- valuation ---
+        "pe_ratio": _safe_num(pe_ratio),
+        "pb_ratio": _safe_num(valuation.get("pb_ratio")),
+        "ps_ratio": _safe_num(valuation.get("ps_ratio")),
+        "dividend_yield": _safe_num(dividend.get("yield_ttm") or valuation.get("dividend_yield")),
+        "roe": _safe_num(valuation.get("roe")),
+        "roa": _safe_num(valuation.get("roa")),
+        "intrinsic_value": _safe_num(intrinsic_value),
+        "forward_pe": _safe_num(forward_pe),
+        "historical_valuation": historical_valuation,  # list of dicts, unchanged
+        # --- future / forecasts ---
+        "company_value_forecasts": company_value_forecasts,  # list of dicts, unchanged
+        "company_growth_forecasts": company_growth_forecasts,  # list of dicts, unchanged
+        "analyst_rating_breakdown": analyst_rating_breakdown,  # dict, unchanged
+        # --- financials ---
+        "eps": _safe_num(eps),
+        "revenue": _safe_num(financials.get("revenue")),
+        "net_income": _safe_num(financials.get("net_income")),
+        "total_assets": _safe_num(financials.get("total_assets")),
+        "historical_eps": historical_eps,  # dict, unchanged
+        "historical_financials": historical_financials,  # list, unchanged
+        # --- dividend ---
+        "historical_dividends": historical_dividends,  # list, unchanged
+        "upcoming_dividends": upcoming_dividends,  # list, unchanged
+        "yield_ttm": _safe_num(yield_ttm),
+        "dividend_yield_avg": _safe_num(dividend_yield_avg),
+        "dividend_ttm": _safe_int(dividend_ttm),
+        "payout_ratio": _safe_num(payout_ratio),
+        "cash_payout_ratio": _safe_num(cash_payout_ratio),
+        "last_ex_dividend_date": _safe_str(last_ex_dividend_date),
+        # --- management ---
+        "key_executives": key_executives,  # list, unchanged
+        "executives_shareholdings": executives_shareholdings,  # list, unchanged
+        # --- ownership ---
+        "major_shareholders": major_shareholders,  # list, unchanged
+        "top_transactions": top_transactions,  # dict, unchanged
+        "institutional_transaction_flow": institutional_transaction_flow,  # dict, unchanged
+        "whale_investors": whale_investors,  # list, unchanged
+        "conglomerates_group": conglomerates_group,  # list, unchanged
+        # --- peers ---
+        "peers_data": peers_data,  # dict, unchanged
     }
 
 
@@ -42,13 +193,16 @@ def distill_daily_transactions(data: Any) -> dict[str, Any]:
     if not valid_records:
         return {"summary": "No valid transaction records"}
 
-    closes = [r["close"] for r in valid_records if r.get("close") is not None]
-    volumes = [r.get("volume", 0) for r in valid_records if r.get("volume") is not None]
+    closes = [_safe_num(r.get("close")) for r in valid_records if _safe_num(r.get("close")) is not None]
+    volumes = [_safe_num(r.get("volume")) for r in valid_records if _safe_num(r.get("volume")) is not None]
 
-    latest_close = closes[0] if closes else None
-    start_close = closes[-1] if closes else None
+    if not closes:
+        return {"summary": "No valid transaction records"}
+
+    latest_close = closes[0]
+    start_close = closes[-1]
     change_pct = None
-    if latest_close is not None and start_close and start_close > 0:
+    if latest_close is not None and start_close is not None and start_close != 0:
         change_pct = round(((latest_close - start_close) / start_close) * 100, 2)
 
     return {
@@ -56,9 +210,9 @@ def distill_daily_transactions(data: Any) -> dict[str, Any]:
         "latest_close": latest_close,
         "period_start_close": start_close,
         "period_change_pct": change_pct,
-        "period_high_close": max(closes) if closes else None,
-        "period_low_close": min(closes) if closes else None,
-        "avg_daily_volume": round(sum(volumes) / len(volumes)) if volumes else None,
+        "period_high_close": _safe_num(max(closes)) if closes else None,
+        "period_low_close": _safe_num(min(closes)) if closes else None,
+        "avg_daily_volume": _safe_num(sum(volumes) / len(volumes)) if volumes else None,
         "recent_5_days_close": closes[:5],
     }
 
@@ -68,23 +222,35 @@ def distill_foreign_flow(data: Any) -> dict[str, Any]:
     if not isinstance(data, list) or not data:
         return data if isinstance(data, dict) else {"summary": "No foreign flow data"}
 
-    valid = [r for r in data if isinstance(r, dict) and "net_foreign" in r]
+    # The API returns list of dicts with keys like: date, symbol, net_foreign_inflow, buy_buy_..., sell_...
+    # Use .get() with .get() to safely extract; fall back to generic keys if needed.
+    valid = []
+    for r in data:
+        if isinstance(r, dict):
+            # Try net_foreign_inflow first, then fall back to net_foreign
+            nf = r.get("net_foreign_inflow") if r.get("net_foreign_inflow") is not None else r.get("net_foreign")
+            if nf is not None:
+                valid.append(r)
+
     if not valid:
         return {"summary": "No valid foreign flow records"}
 
-    flows = [r.get("net_foreign", 0) for r in valid]
-    total_net = sum(flows)
-    recent_7d_net = sum(flows[:7])
-    inflow_days = sum(1 for f in flows if f > 0)
-    outflow_days = sum(1 for f in flows if f < 0)
+    flows = [_safe_num(r.get("net_foreign_inflow") if r.get("net_foreign_inflow") is not None else r.get("net_foreign")) for r in valid]
+    total_net = _safe_num(sum(flows))
+    recent_7d_net = _safe_num(sum(flows[:7])) if len(flows) >= 7 else None
+    inflow_days = sum(1 for f in flows if _safe_num(f) is not None and _safe_num(f) > 0)
+    outflow_days = sum(1 for f in flows if _safe_num(f) is not None and _safe_num(f) < 0)
+
+    largest_inflow = _safe_num(max(flows)) if flows else None
+    largest_outflow = _safe_num(min(flows)) if flows else None
 
     return {
         "period_total_net_foreign_idr": total_net,
         "recent_7d_net_foreign_idr": recent_7d_net,
         "inflow_days": inflow_days,
         "outflow_days": outflow_days,
-        "largest_single_inflow_idr": max(flows) if flows else 0,
-        "largest_single_outflow_idr": min(flows) if flows else 0,
+        "largest_single_inflow_idr": largest_inflow,
+        "largest_single_outflow_idr": largest_outflow,
     }
 
 
@@ -100,12 +266,12 @@ def distill_quarterly(data: Any) -> list[dict[str, Any]] | dict[str, Any]:
             continue
         distilled.append({
             "quarter": item.get("quarter") or item.get("period"),
-            "year": item.get("year"),
-            "revenue": item.get("revenue") or item.get("total_revenue"),
-            "net_income": item.get("net_income") or item.get("profit"),
-            "revenue_growth_yoy": item.get("revenue_growth_yoy") or item.get("revenue_growth"),
-            "net_income_growth_yoy": item.get("net_income_growth_yoy") or item.get("profit_growth"),
-            "operating_margin": item.get("operating_margin"),
+            "year": _safe_int(item.get("year")),
+            "revenue": _safe_num(item.get("revenue") or item.get("total_revenue")),
+            "net_income": _safe_num(item.get("net_income") or item.get("profit")),
+            "revenue_growth_yoy": _safe_num(item.get("revenue_growth_yoy") or item.get("revenue_growth")),
+            "net_income_growth_yoy": _safe_num(item.get("net_income_growth_yoy") or item.get("profit_growth")),
+            "operating_margin": _safe_num(item.get("operating_margin")),
         })
     return distilled if distilled else {"summary": "Quarterly data unavailable"}
 
@@ -119,21 +285,25 @@ def distill_broker_summary(data: Any) -> dict[str, Any]:
     sellers: list[dict[str, Any]] = []
 
     if isinstance(data, dict):
+        # API may use top_buyers/buyers or top_sellers/sellers; also top_buyer_amount/seller_amount
         top_buyers = data.get("top_buyers", data.get("buyers", []))
         top_sellers = data.get("top_sellers", data.get("sellers", []))
+
         if isinstance(top_buyers, list):
             for b in top_buyers[:3]:
                 if isinstance(b, dict):
+                    # API may use broker_code, broker, buy_value, value, net_idr, etc.
                     buyers.append({
                         "broker": b.get("broker_code") or b.get("broker"),
-                        "buy_val": b.get("buy_value") or b.get("value"),
+                        "buy_val": _safe_num(b.get("buy_value") or b.get("value")),
                     })
+
         if isinstance(top_sellers, list):
             for s in top_sellers[:3]:
                 if isinstance(s, dict):
                     sellers.append({
                         "broker": s.get("broker_code") or s.get("broker"),
-                        "sell_val": s.get("sell_value") or s.get("value"),
+                        "sell_val": _safe_num(s.get("sell_value") or s.get("value")),
                     })
 
     return {
@@ -188,23 +358,22 @@ def distill_context(raw_context: dict[str, Any]) -> dict[str, Any]:
                 {
                     "symbol": item.get("symbol"),
                     "name": item.get("company_name"),
-                    "pe": item.get("pe_ratio"),
-                    "pb": item.get("pb_ratio"),
-                    "market_cap": item.get("market_cap"),
+                    "pe": _safe_num(item.get("pe_ratio")),
+                    "pb": _safe_num(item.get("pb_ratio")),
+                    "market_cap": _safe_num(item.get("market_cap")),
                 }
                 for item in value[:8]
                 if isinstance(item, dict)
             ]
         elif key == "sector_report" and isinstance(value, dict):
             compact_context["sector_report"] = {
-                "sector": value.get("sector_name") or value.get("sector"),
+                "sector": _safe_str(value.get("sector_name") or value.get("sector")),
                 "top_companies": [
-                    c.get("symbol") for c in value.get("top_companies", [])[:5] if isinstance(c, dict)
+                    _safe_str(c.get("symbol")) for c in value.get("top_companies", [])[:5] if isinstance(c, dict)
                 ] if isinstance(value.get("top_companies"), list) else [],
-                "perf_summary": value.get("performance_summary") or value.get("summary"),
+                "perf_summary": _safe_str(value.get("performance_summary") or value.get("summary")),
             }
         else:
-            # Fallback for simple scalar or already small items
             compact_context[key] = value
 
     return compact_context

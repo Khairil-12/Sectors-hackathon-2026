@@ -20,6 +20,17 @@ logger = logging.getLogger(__name__)
 PRIMARY_MODEL = os.getenv("GROQ_PRIMARY_MODEL", "openai/gpt-oss-120b")
 FAST_MODEL = os.getenv("GROQ_FAST_MODEL", "openai/gpt-oss-20b")
 
+INDONESIAN_MARKERS = {"analisis", "bandingkan", "saham", "sektor", "dengan", "untuk", "bagaimana", "harga", "asing", "laba"}
+
+
+def detect_language(text: str) -> str:
+    words = set(re.findall(r"[a-zA-ZÀ-ÿ]+", text.lower()))
+    return "id" if len(words & INDONESIAN_MARKERS) >= 1 else "en"
+
+
+def language_instruction(language: str) -> str:
+    return "Respond entirely in Indonesian." if language == "id" else "Respond entirely in English."
+
 
 
 class GroqAPIError(Exception):
@@ -155,11 +166,11 @@ def _fallback_intent(user_prompt: str) -> dict[str, Any]:
     }
 
 
-def _fallback_report(user_prompt: str, context_data: dict[str, Any]) -> dict[str, Any]:
-    """Generates a grounded structured fallback report from context data."""
+def _fallback_report(user_prompt: str, context_data: dict[str, Any], language: str = "en") -> dict[str, Any]:
     symbols = list(context_data.get("symbols", [])) or ["BBCA"]
     primary_sym = symbols[0]
     today_str = date.today().isoformat()
+    is_id = language == "id"
 
     overview = context_data.get(f"{primary_sym}_company_report", {}) or {}
     company_name = overview.get("overview", {}).get("company_name", f"{primary_sym} Corp")
@@ -173,50 +184,96 @@ def _fallback_report(user_prompt: str, context_data: dict[str, Any]) -> dict[str
     if isinstance(foreign, list) and foreign:
         net_foreign = sum(item.get("net_foreign", 0) for item in foreign if isinstance(item, dict))
 
-    return {
-        "title": f"Equity Research Report: {', '.join(symbols)} ({subsector})",
-        "summary": f"Comprehensive equity analysis for {', '.join(symbols)} evaluating valuation metrics, institutional and foreign capital flow trends, and quarterly operational performance on the Indonesia Stock Exchange.",
-        "analyzed_symbols": symbols,
-        "fundamental_analysis": {
-            "valuation_verdict": "fair" if pe_ratio != "N/A" else "inconclusive",
-            "pe_pb_commentary": f"{primary_sym} trades at PE ratio of {pe_ratio} and PB ratio of {pb_ratio}, reflecting stable sector multiples in {subsector}.",
-            "revenue_profit_trend": f"{company_name} demonstrates resilient revenue progression across recent quarters with solid balance sheet fundamentals.",
-            "segment_insights": "Core operating segments remain the primary driver for operating margin stability.",
-        },
-        "flow_and_momentum": {
-            "foreign_flow_sentiment": "strong_inflow" if net_foreign > 0 else "neutral",
-            "net_foreign_amount_idr": float(net_foreign),
-            "top_broker_action": "Institutional accumulation observed across top tier IDX brokers.",
-            "price_trend_summary": f"{primary_sym} exhibits steady consolidation with healthy volume support over the analyzed period.",
-        },
-        "bullish_drivers": [
-            f"Strong market positioning in the {subsector} segment.",
-            "Consistent dividend track record and disciplined capital allocation.",
-            "Positive net foreign institutional interest over the measured period.",
-        ],
-        "bearish_risks": [
-            "Macroeconomic headwinds and domestic interest rate volatility.",
-            "Potential sector-wide margin compression due to rising operating costs.",
-            "Currency fluctuation risks impacting cross-border business activities.",
-        ],
-        "catalysts_and_news": [
-            "Upcoming quarterly financial statements release.",
-            "Potential corporate action and dividend distribution schedule.",
-        ],
-        "data_citations": [
-            {
-                "source_endpoint": f"/v2/company/report/{primary_sym}/",
-                "as_of_date": today_str,
-                "key_datapoints": f"PE: {pe_ratio}, PB: {pb_ratio}, Sector: {subsector}",
+    if is_id:
+        return {
+            "title": f"Laporan Riset Saham: {', '.join(symbols)} ({subsector})",
+            "summary": f"Analisis saham komprehensif untuk {', '.join(symbols)} mengevaluasi metrik valuasi, tren arus modal institusional dan asing, serta kinerja operasional kuartalan di Bursa Efek Indonesia.",
+            "analyzed_symbols": symbols,
+            "fundamental_analysis": {
+                "valuation_verdict": "fair" if pe_ratio != "N/A" else "inconclusive",
+                "pe_pb_commentary": f"{primary_sym} diperdagangkan dengan PE ratio {pe_ratio} dan PB ratio {pb_ratio}, mencerminkan multiplikasi sektor yang stabil di {subsector}.",
+                "revenue_profit_trend": f"{company_name} menunjukkan perkembangan pendapatan yang kuat di berbagai kuartal terakhir dengan fondasi neraca yang solid.",
+                "segment_insights": "Segmen operasional inti tetap menjadi pendorong utama stabilitas margin operasional.",
             },
-            {
-                "source_endpoint": f"/v2/foreign-flow/{primary_sym}/",
-                "as_of_date": today_str,
-                "key_datapoints": f"Net Foreign Flow: {net_foreign:,.0f} IDR",
+            "flow_and_momentum": {
+                "foreign_flow_sentiment": "strong_inflow" if net_foreign > 0 else "neutral",
+                "net_foreign_amount_idr": float(net_foreign),
+                "top_broker_action": "Akumulasi institusional diamati di berbagai broker kelas atas IDX.",
+                "price_trend_summary": f"{primary_sym} menunjukkan konsolidasi stabil dengan dukungan volume yang sehat selama periode yang dianalisis.",
             },
-        ],
-        "disclaimer": "Bukan rekomendasi beli atau jual. Analisis dihasilkan otomatis berdasarkan data Sectors API untuk tujuan edukasi.",
-    }
+            "bullish_drivers": [
+                f"Posisi pasar yang kuat di segmen {subsector}.",
+                "Rekam jejak dividen konsisten dan alokasi modal yang disiplin.",
+                "Minat institusional asing bersih positif selama periode yang diukur.",
+            ],
+            "bearish_risks": [
+                "Hambatan makroekonomi dan volatilitas suku bunga domestik.",
+                "Potensi tekanan margin sektoral akibat kenaikan biaya operasional.",
+                "Risiko fluktuasi mata uang yang memengaruhi aktivitas bisnis lintas batas.",
+            ],
+            "catalysts_and_news": [
+                "Rilis laporan keuangan kuartalan yang akan datang.",
+                "Jadwal aksi korporasi potensial dan distribusi dividen.",
+            ],
+            "data_citations": [
+                {
+                    "source_endpoint": f"/v2/company/report/{primary_sym}/",
+                    "as_of_date": today_str,
+                    "key_datapoints": f"PE: {pe_ratio}, PB: {pb_ratio}, Sektor: {subsector}",
+                },
+                {
+                    "source_endpoint": f"/v2/foreign-flow/{primary_sym}/",
+                    "as_of_date": today_str,
+                    "key_datapoints": f"Arus Asing Bersih: {net_foreign:,.0f} IDR",
+                },
+            ],
+            "disclaimer": "Bukan rekomendasi beli atau jual. Analisis dihasilkan otomatis berdasarkan data Sectors API untuk tujuan edukasi.",
+        }
+    else:
+        return {
+            "title": f"Equity Research Report: {', '.join(symbols)} ({subsector})",
+            "summary": f"Comprehensive equity analysis for {', '.join(symbols)} evaluating valuation metrics, institutional and foreign capital flow trends, and quarterly operational performance on the Indonesia Stock Exchange.",
+            "analyzed_symbols": symbols,
+            "fundamental_analysis": {
+                "valuation_verdict": "fair" if pe_ratio != "N/A" else "inconclusive",
+                "pe_pb_commentary": f"{primary_sym} trades at PE ratio of {pe_ratio} and PB ratio of {pb_ratio}, reflecting stable sector multiples in {subsector}.",
+                "revenue_profit_trend": f"{company_name} demonstrates resilient revenue progression across recent quarters with solid balance sheet fundamentals.",
+                "segment_insights": "Core operating segments remain the primary driver for operating margin stability.",
+            },
+            "flow_and_momentum": {
+                "foreign_flow_sentiment": "strong_inflow" if net_foreign > 0 else "neutral",
+                "net_foreign_amount_idr": float(net_foreign),
+                "top_broker_action": "Institutional accumulation observed across top tier IDX brokers.",
+                "price_trend_summary": f"{primary_sym} exhibits steady consolidation with healthy volume support over the analyzed period.",
+            },
+            "bullish_drivers": [
+                f"Strong market positioning in the {subsector} segment.",
+                "Consistent dividend track record and disciplined capital allocation.",
+                "Positive net foreign institutional interest over the measured period.",
+            ],
+            "bearish_risks": [
+                "Macroeconomic headwinds and domestic interest rate volatility.",
+                "Potential sector-wide margin compression due to rising operating costs.",
+                "Currency fluctuation risks impacting cross-border business activities.",
+            ],
+            "catalysts_and_news": [
+                "Upcoming quarterly financial statements release.",
+                "Potential corporate action and dividend distribution schedule.",
+            ],
+            "data_citations": [
+                {
+                    "source_endpoint": f"/v2/company/report/{primary_sym}/",
+                    "as_of_date": today_str,
+                    "key_datapoints": f"PE: {pe_ratio}, PB: {pb_ratio}, Sector: {subsector}",
+                },
+                {
+                    "source_endpoint": f"/v2/foreign-flow/{primary_sym}/",
+                    "as_of_date": today_str,
+                    "key_datapoints": f"Net Foreign Flow: {net_foreign:,.0f} IDR",
+                },
+            ],
+            "disclaimer": "Not buy or sell recommendation. Analysis is automatically generated based on Sectors API data for educational purposes.",
+        }
 
 
 def parse_user_intent(user_prompt: str) -> dict[str, Any]:
@@ -231,10 +288,14 @@ def parse_user_intent(user_prompt: str) -> dict[str, Any]:
             "user_goal_summary": guard.reason,
         }
 
+    lang = detect_language(user_prompt)
+    lang_instr = language_instruction(lang)
+
     try:
         return _call_groq_json(
             model=FAST_MODEL,
             instructions=(
+                f"{lang_instr}\n\n"
                 "You are an expert IDX Intent Parser and Domain Guard. "
                 "Analyze if the user query is about the Indonesia Stock Exchange (IDX), stocks, financial analysis, sectors, or market data. "
                 "If the query is unrelated/out-of-domain (e.g. general programming, cooking, chit-chat, non-financial), set analysis_type to 'out_of_scope', is_valid_query to false, symbols to [], and required_endpoints to []. "
@@ -247,10 +308,14 @@ def parse_user_intent(user_prompt: str) -> dict[str, Any]:
         )
     except GroqAPIError as exc:
         logger.info("Using fallback intent parser: %s", exc)
-        return _fallback_intent(user_prompt)
+        fb = _fallback_intent(user_prompt)
+        fb["response_language"] = lang
+        return fb
 
 
 def generate_copilot_report(user_prompt: str, context_data: dict[str, Any]) -> dict[str, Any]:
+    lang = detect_language(user_prompt)
+    lang_instr = language_instruction(lang)
     distilled = distill_context(context_data)
     compact_json = json.dumps(distilled, separators=(",", ":"), default=str)
     input_text = f"User Request: {user_prompt.strip()}\n\nIDX Context Data:\n{compact_json}"
@@ -258,6 +323,7 @@ def generate_copilot_report(user_prompt: str, context_data: dict[str, Any]) -> d
         report = _call_groq_json(
             model=PRIMARY_MODEL,
             instructions=(
+                f"{lang_instr}\n\n"
                 "Expert IDX equity research analyst. Synthesize the provided distilled market data "
                 "into an objective research report. Adhere strictly to provided numbers without hallucination. "
                 "Include balanced bullish drivers, bearish risks, precise data citations, and the regulatory disclaimer."
@@ -267,8 +333,7 @@ def generate_copilot_report(user_prompt: str, context_data: dict[str, Any]) -> d
             max_tokens=2048,
             temperature=0.1,
         )
-        report["disclaimer"] = "Bukan rekomendasi beli atau jual. Analisis dihasilkan otomatis berdasarkan data Sectors API untuk tujuan edukasi."
         return report
     except GroqAPIError as exc:
         logger.info("Using fallback report synthesis: %s", exc)
-        return _fallback_report(user_prompt, context_data)
+        return _fallback_report(user_prompt, context_data, lang)

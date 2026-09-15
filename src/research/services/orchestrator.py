@@ -61,32 +61,32 @@ def run_analysis(user_prompt: str) -> dict[str, Any]:
 
     # Short-circuit out-of-scope or non-financial inquiries
     if intent.get("analysis_type") == "out_of_scope" or intent.get("is_valid_query") is False:
+        lang = intent.get("response_language", "en")
+        is_id = lang == "id"
         return {
             "is_out_of_scope": True,
             "intent": intent,
-            "message": intent.get("rejection_reason") or "Pertanyaan di luar lingkup riset saham dan pasar modal IDX.",
-            "suggestions": [
-                "Analisis fundamental BBCA",
-                "Bandingkan BMRI dan BBRI 30 hari",
-                "Screening saham perbankan undervalue",
-                "Bagaimana foreign flow TLKM minggu ini?",
-            ],
+            "message": intent.get("rejection_reason") or ("Pertanyaan di luar lingkup riset saham dan pasar modal IDX." if is_id else "Question is out of IDX stock research scope."),
+            "suggestions": ["Analisis fundamental BBCA" if is_id else "Analyze BBCA fundamentals",
+                           "Bandingkan BMRI dan BBRI 30 hari" if is_id else "Compare BMRI and BBRI for 30 days",
+                           "Screening saham perbankan undervalue" if is_id else "Screen undervalued banking stocks",
+                           "Bagaimana foreign flow TLKM minggu ini?" if is_id else "How is TLKM's foreign flow this week?"],
         }
 
     symbols = _symbols(intent)
     analysis_type = intent.get("analysis_type", "single_stock")
 
     if not symbols and analysis_type not in ("screener", "macro_sector"):
+        lang = intent.get("response_language", "en")
+        is_id = lang == "id"
         return {
             "is_out_of_scope": True,
             "intent": intent,
-            "message": "Mohon sebutkan minimal satu kode saham IDX (contoh: BBCA, BMRI, TLKM, ASII).",
-            "suggestions": [
-                "Analisis fundamental BBCA",
-                "Bandingkan BMRI dan BBRI 30 hari",
-                "Screening saham perbankan undervalue",
-                "Bagaimana foreign flow TLKM minggu ini?",
-            ],
+            "message": "Mohon sebutkan minimal satu kode saham IDX (contoh: BBCA, BMRI, TLKM, ASII)." if is_id else "Please mention at least one IDX stock ticker (e.g., BBCA, BMRI, TLKM, ASII).",
+            "suggestions": ["Analisis fundamental BBCA" if is_id else "Analyze BBCA fundamentals",
+                           "Bandingkan BMRI dan BBRI 30 hari" if is_id else "Compare BMRI and BBRI for 30 days",
+                           "Screening saham perbankan undervalue" if is_id else "Screen undervalued banking stocks",
+                           "Bagaimana foreign flow TLKM minggu ini?" if is_id else "How is TLKM's foreign flow this week?"],
         }
 
     dates = _safe_dates(intent)
@@ -94,7 +94,7 @@ def run_analysis(user_prompt: str) -> dict[str, Any]:
     if not endpoints:
         endpoints = {"company_report", "daily_transaction", "foreign_flow", "broker_summary_top"}
 
-    context: dict[str, Any] = {"symbols": symbols, "dates": dates}
+    context: dict[str, Any] = {"symbols": symbols, "dates": dates, "response_language": intent.get("response_language", "en")}
 
     for symbol in symbols:
         for endpoint in endpoints & SYMBOL_ENDPOINTS.keys():

@@ -6,6 +6,7 @@ INTENT_PARSER_SCHEMA = {
             "enum": ["single_stock", "comparison", "screener", "broker_flow", "macro_sector", "news_filings", "out_of_scope"],
         },
         "is_valid_query": {"type": "boolean"},
+        "response_language": {"type": "string", "enum": ["id", "en"]},
         "rejection_reason": {"type": "string"},
         "symbols": {
             "type": "array",
@@ -95,6 +96,7 @@ COPILOT_REPORT_SCHEMA = {
             },
         },
         "disclaimer": {"type": "string"},
+        "response_language": {"type": "string", "enum": ["id", "en"]},
     },
     "required": [
         "title",

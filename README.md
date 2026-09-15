@@ -20,7 +20,7 @@ AI IDX Investment Research Copilot is an intelligent conversational equity resea
 
 - **Backend Framework**: Python 3.12+, Django 5.1.6
 - **Package & Environment Manager**: Astral uv
-- **AI / LLM Orchestration**: Groq Cloud API (`llama-3.3-70b-versatile` / OpenAI Python SDK) with Structured Outputs (`response_format: json_schema`)
+- **AI / LLM Orchestration**: Groq Cloud API (`openai/gpt-oss-120b`) with Structured Outputs (`response_format: json_schema`)
 - **Financial Market Data**: Sectors Financial API v2 (`https://api.sectors.app`)
 - **Frontend & Dynamic Interactions**: Django Templates, HTMX 2.0, Tailwind CSS v4 (via `@tailwindcss/cli`), `django-browser-reload`
 - **Database**: SQLite (isolated in `database/` for local development) / PostgreSQL (production-ready)
@@ -231,8 +231,8 @@ Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser to access th
 | `GROQ_API_KEY` | Yes | - | API key for Groq Cloud LLM inference. |
 | `SECTORS_API_KEY` | Yes | - | API key for Sectors Financial IDX data access. |
 | `DJANGO_SECRET_KEY` | Yes | Insecure dev key | Django cryptographic signing key. |
-| `DEBUG` | No | `True` | Enables Django debug mode and live reload. |
-| `ALLOWED_HOSTS` | No | `*` | Comma-separated list of permitted host headers. |
+| `DEBUG` | No | `True` (dev) / `False` (prod) | Enables Django debug mode. Set `False` in production. |
+| `ALLOWED_HOSTS` | No | `localhost,127.0.0.1,testserver` | Comma-separated list of permitted host headers. Never `*` in production. |
 | `DATABASE_ENGINE` | No | `django.db.backends.sqlite3` | Database backend engine. |
 | `DJANGO_CACHE_BACKEND` | No | `localmemory` | Cache backend: `localmemory`, `redis`, or `db`. |
 | `DJANGO_CACHE_LOCATION` | No | `unique-cache` | Cache instance identifier or connection string. |
