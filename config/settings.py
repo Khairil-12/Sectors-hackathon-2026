@@ -10,17 +10,21 @@ sys.path.insert(0, str(BASE_DIR / "src"))
 
 load_dotenv(BASE_DIR / ".env")
 
-# Validate required environment variables
-if not os.getenv("GROQ_API_KEY"):
-    raise ImproperlyConfigured(
-        "GROQ_API_KEY environment variable not set. "
-        "Create a .env file based on .env.template and add your Groq API key."
-    )
-if not os.getenv("SECTORS_API_KEY"):
-    raise ImproperlyConfigured(
-        "SECTORS_API_KEY environment variable not set. "
-        "Create a .env file based on .env.template and add your Sectors Financial API key."
-    )
+IS_VERCEL = os.getenv("VERCEL") == "1"
+
+# Validate required environment variables (relaxed during build commands)
+is_build_command = any(cmd in sys.argv for cmd in ("collectstatic", "check", "makemigrations", "help"))
+if not is_build_command:
+    if not os.getenv("GROQ_API_KEY"):
+        raise ImproperlyConfigured(
+            "GROQ_API_KEY environment variable not set. "
+            "Create a .env file based on .env.template and add your Groq API key."
+        )
+    if not os.getenv("SECTORS_API_KEY"):
+        raise ImproperlyConfigured(
+            "SECTORS_API_KEY environment variable not set. "
+            "Create a .env file based on .env.template and add your Sectors Financial API key."
+        )
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -29,9 +33,22 @@ if not os.getenv("SECTORS_API_KEY"):
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "django-insecure-dev-do-not-use-in-production")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True"
+DEBUG = os.getenv("DJANGO_DEBUG", "True") == "True" and not IS_VERCEL
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,testserver").split(",")
+if IS_VERCEL:
+    ALLOWED_HOSTS.extend([".vercel.app", "now.sh"])
+    vercel_url = os.getenv("VERCEL_URL")
+    if vercel_url and vercel_url not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(vercel_url)
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "https://*.vercel.app",
+]
+if os.getenv("CSRF_TRUSTED_ORIGINS"):
+    CSRF_TRUSTED_ORIGINS.extend(os.getenv("CSRF_TRUSTED_ORIGINS").split(","))
 
 # Application definition
 DJANGO_APPS = [
@@ -43,9 +60,9 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
 ]
 
-THIRD_PARTY_APPS = [
-    "django_browser_reload",
-]
+THIRD_PARTY_APPS = []
+if DEBUG and not IS_VERCEL:
+    THIRD_PARTY_APPS.append("django_browser_reload")
 
 LOCAL_APPS = [
     "research",
@@ -55,14 +72,18 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "django_browser_reload.middleware.BrowserReloadMiddleware",
+]
+if DEBUG and not IS_VERCEL:
+    MIDDLEWARE.append("django_browser_reload.middleware.BrowserReloadMiddleware")
+MIDDLEWARE.extend([
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-]
+])
 
 ROOT_URLCONF = "config.urls"
 
@@ -87,15 +108,33 @@ ASGI_APPLICATION = "config.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-DB_DIR = BASE_DIR / "database"
-DB_DIR.mkdir(parents=True, exist_ok=True)
+import dj_database_url
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": DB_DIR / "db.sqlite3",
+if os.getenv("DATABASE_URL"):
+    DATABASES = {
+        "default": dj_database_url.config(
+            default=os.getenv("DATABASE_URL"),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+elif IS_VERCEL:
+    DB_DIR = Path("/tmp")
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": DB_DIR / "db.sqlite3",
+        }
+    }
+else:
+    DB_DIR = BASE_DIR / "database"
+    DB_DIR.mkdir(parents=True, exist_ok=True)
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": DB_DIR / "db.sqlite3",
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#password-validators
@@ -113,6 +152,11 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_STORAGE = (
+    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    if not DEBUG
+    else "django.contrib.staticfiles.storage.StaticFilesStorage"
+)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-primary-key-field-type

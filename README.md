@@ -274,6 +274,32 @@ For automated deployment pipelines (Render, Railway, Fly.io, Linux VPS, Docker):
 ./build.sh
 ```
 
+### Deploying to Vercel
+
+This project is fully configured for zero-configuration serverless deployment on **Vercel** with automated Tailwind CSS building and Django Serverless WSGI execution.
+
+#### 1. Import Repository into Vercel
+1. Go to [Vercel Dashboard](https://vercel.com/new).
+2. Import this GitHub repository.
+3. Vercel automatically detects `vercel.json`, `package.json`, and `api/index.py`.
+
+#### 2. Configure Environment Variables in Vercel
+Under **Project Settings > Environment Variables**, add:
+
+| Variable | Value / Description |
+|---|---|
+| `GROQ_API_KEY` | `gsk_...` (Your Groq Cloud API key) |
+| `SECTORS_API_KEY` | `...` (Your Sectors Financial API key) |
+| `DJANGO_SECRET_KEY` | Strong random secret key |
+| `DJANGO_DEBUG` | `False` |
+| `DATABASE_URL` | *(Optional)* PostgreSQL connection string (e.g., from [Neon](https://neon.tech/)) for persistent reports |
+
+#### 3. Deploy via Vercel CLI (Alternative)
+```bash
+npm install -g vercel
+vercel --prod
+```
+
 ---
 
 ## Testing & Quality Assurance
