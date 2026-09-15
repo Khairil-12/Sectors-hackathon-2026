@@ -47,7 +47,7 @@ def _symbols(intent: dict) -> list[str]:
             continue
         if symbol not in values:
             values.append(symbol)
-    return values[:4]
+    return values[:10]
 
 
 def _error_payload(error: Exception) -> dict:
@@ -140,7 +140,7 @@ def run_comparison(symbols: list[str]) -> list[dict[str, Any]]:
     start_date = (date.today() - timedelta(days=30)).isoformat()
     results = []
 
-    for sym in clean_symbols[:4]:
+    for sym in clean_symbols[:10]:
         item: dict[str, Any] = {
             "symbol": sym,
             "company_name": f"{sym} Tbk",
@@ -161,14 +161,22 @@ def run_comparison(symbols: list[str]) -> list[dict[str, Any]]:
             if isinstance(rep, dict):
                 overview = rep.get("overview", {})
                 valuation = rep.get("valuation", {})
-                item["company_name"] = overview.get("company_name", item["company_name"])
+                dividend = rep.get("dividend", {})
+                financials = rep.get("financials", {})
+                item["company_name"] = rep.get("company_name") or overview.get("company_name", item["company_name"])
                 item["industry"] = overview.get("industry", "N/A")
                 item["sub_sector"] = overview.get("sub_sector", "N/A")
                 item["market_cap"] = overview.get("market_cap")
-                item["pe_ratio"] = valuation.get("pe_ratio")
-                item["pb_ratio"] = valuation.get("pb_ratio")
-                item["dividend_yield"] = valuation.get("dividend_yield")
-                item["roe"] = valuation.get("roe")
+                item["pe_ratio"] = valuation.get("forward_pe") or valuation.get("pe_ratio")
+                history = valuation.get("historical_valuation", [])
+                if isinstance(history, list) and history:
+                    item["pb_ratio"] = history[0].get("pb")
+                item["dividend_yield"] = dividend.get("yield_ttm") or valuation.get("dividend_yield")
+                ratios = financials.get("historical_financial_ratio", [])
+                if isinstance(ratios, list) and ratios:
+                    item["roe"] = ratios[0].get("profitability", {}).get("roe")
+                else:
+                    item["roe"] = valuation.get("roe")
         except Exception as exc:
             logger.warning("Error fetching company report for comparison %s: %s", sym, exc)
 

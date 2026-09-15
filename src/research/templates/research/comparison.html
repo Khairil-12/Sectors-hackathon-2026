@@ -27,7 +27,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </div>
-                        <input type="text" name="symbols" id="symbolsInput" value="{{ symbols_param }}" placeholder="e.g. BBCA, BMRI, BBRI, BBNI" class="uppercase block w-full pl-10 pr-4 py-2.5 text-sm text-white bg-surface-950 rounded-lg border border-slate-700 focus:ring-brand-500 focus:border-brand-500 placeholder-slate-500 transition-colors">
+                        <input type="text" name="symbols" id="symbolsInput" value="{{ symbols_param }}" placeholder="Up to 10 tickers, e.g. BBCA, BMRI, BBRI, BBNI" class="uppercase block w-full pl-10 pr-4 py-2.5 text-sm text-white bg-surface-950 rounded-lg border border-slate-700 focus:ring-brand-500 focus:border-brand-500 placeholder-slate-500 transition-colors">
                     </div>
                     <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,10 +41,17 @@
             <!-- Quick Presets -->
             <div class="flex flex-wrap items-center gap-2 text-xs pt-1">
                 <span class="text-slate-400 font-medium text-[11px] mr-1">Popular Presets:</span>
-                <a href="{% url 'research:comparison' %}?symbols=BBCA,BMRI,BBRI,BBNI" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors">Big 4 Banks</a>
-                <a href="{% url 'research:comparison' %}?symbols=TLKM,ISAT,EXCL" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors">Telco Majors</a>
-                <a href="{% url 'research:comparison' %}?symbols=ASII,UNTR" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors">Astra Conglomerates</a>
-                <a href="{% url 'research:comparison' %}?symbols=ADRO,PTBA,ITMG" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors">Energy Coal</a>
+                <button type="button" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="big-4-banks">Big 4 Banks</button>
+                <button type=\"button\" class=\"inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors\" data-preset=\"telco-majors\">Telco Majors</button>
+                <a href=\"{% url 'research:comparison' %}?symbols=ASII,UNTR\" class=\"inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors\">Astra Conglomerates</button>
+                <a href="{% url 'research:comparison' %}?symbols=ADRO,PT
+
+The user is asking me to continue with the implementation. I should provide the remaining todo items and completion status.
+<tool_call>
+<function=bash>
+<parameter=command>
+cat src/research/templates/research/comparison.html
+                <a href="{% url 'research:comparison' %}?symbols=BBCA,BMRI,BBRI,BBNI,TLKM,ASII,ICBP,INDF,UNTR,ANTM" class="inline-flex items-center rounded-full border border-brand-800 bg-brand-950/40 px-3 py-1 text-brand-300 hover:border-brand-500 hover:text-white transition-colors">Top 10 IDX Blue Chips</a>
             </div>
         </form>
     </div>
@@ -152,8 +159,35 @@
                 </svg>
             </div>
             <h3 class="text-base font-semibold text-white">Select stocks to compare</h3>
-            <p class="mt-1 text-sm text-slate-400 max-w-sm mx-auto">Enter two or more 4-letter IDX symbols above, or click one of the popular presets to start.</p>
+            <p class="mt-1 text-sm text-slate-400 max-w-sm mx-auto">Add recommended tickers to search field, then click Compare Stocks.</p>
+            <div class="mx-auto mt-6 max-w-4xl text-left">
+                <p class="mb-3 text-center text-xs font-semibold uppercase tracking-wider text-slate-400">Recommended IDX stocks</p>
+                <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+                    <button type="button" data-symbol="BBCA" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">BBCA</span><span class="text-xs text-slate-400">Bank Central Asia</span></button>
+                    <button type="button" data-symbol="BMRI" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">BMRI</span><span class="text-xs text-slate-400">Bank Mandiri</span></button>
+                    <button type="button" data-symbol="BBRI" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">BBRI</span><span class="text-xs text-slate-400">Bank Rakyat Indonesia</span></button>
+                    <button type="button" data-symbol="BBNI" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">BBNI</span><span class="text-xs text-slate-400">Bank Negara Indonesia</span></button>
+                    <button type="button" data-symbol="TLKM" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">TLKM</span><span class="text-xs text-slate-400">Telkom Indonesia</span></button>
+                    <button type="button" data-symbol="ASII" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">ASII</span><span class="text-xs text-slate-400">Astra International</span></button>
+                    <button type="button" data-symbol="ICBP" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">ICBP</span><span class="text-xs text-slate-400">Indofood CBP</span></button>
+                    <button type="button" data-symbol="INDF" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">INDF</span><span class="text-xs text-slate-400">Indofood Sukses Makmur</span></button>
+                    <button type="button" data-symbol="UNTR" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">UNTR</span><span class="text-xs text-slate-400">United Tractors</span></button>
+                    <button type="button" data-symbol="ANTM" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">ANTM</span><span class="text-xs text-slate-400">Aneka Tambang</span></button>
+                </div>
+            </div>
         </div>
     {% endif %}
 </section>
+<script>
+    document.querySelectorAll('.stock-recommendation').forEach((button) => {
+        button.addEventListener('click', () => {
+            const input = document.getElementById('symbolsInput');
+            const symbols = input.value.split(',').map((symbol) => symbol.trim().toUpperCase()).filter(Boolean);
+            const symbol = button.dataset.symbol;
+            if (!symbols.includes(symbol) && symbols.length < 10) symbols.push(symbol);
+            input.value = symbols.join(', ');
+            input.focus();
+        });
+    });
+</script>
 {% endblock %}

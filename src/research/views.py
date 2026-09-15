@@ -89,7 +89,7 @@ def report_delete(request, id):
 @require_http_methods(["GET", "POST"])
 def comparison(request):
     symbols_param = request.GET.get("symbols", "") or request.POST.get("symbols", "")
-    symbols = [s.strip().upper() for s in symbols_param.split(",") if s.strip()]
+    symbols = [s.strip().upper() for s in symbols_param.split(",") if s.strip()][:10]
 
     comparison_data = []
     if symbols:
