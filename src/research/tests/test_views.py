@@ -178,6 +178,37 @@ class ViewRoutingTests(TestCase):
         self.assertContains(response, "BBCA")
         self.assertContains(response, "BBRI")
 
+    @patch("research.services.sectors_api.get_top_changes")
+    @patch("research.services.sectors_api.get_most_traded")
+    def test_dashboard_view_dict_response(self, mock_traded, mock_movers):
+        mock_movers.return_value = {
+            "top_gainers": {
+                "1d": [
+                    {
+                        "symbol": "SRAJ.JK",
+                        "name": "Sejahteraraya Anugrahjaya Tbk",
+                        "last_close_price": 15600,
+                        "price_change": 0.2,
+                    }
+                ]
+            }
+        }
+        mock_traded.return_value = {
+            "2026-09-14": [
+                {
+                    "symbol": "BUMI.JK",
+                    "company_name": "Bumi Resources Tbk",
+                    "volume": 5685408800,
+                    "price": 208,
+                }
+            ]
+        }
+        response = self.client.get("/dashboard/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "SRAJ")
+        self.assertContains(response, "BUMI")
+        self.assertContains(response, "20.00%")
+
     @patch("research.services.sectors_api.get_company_report")
     def test_watchlist_view_get(self, mock_comp_rep):
         mock_comp_rep.return_value = {

@@ -202,14 +202,27 @@ def _get_mock_fallback(endpoint: str, params: dict[str, Any]) -> dict | list | N
             ],
         }
 
-    if "/v2/companies/top-changes/" in endpoint or "/v2/most-traded/" in endpoint:
-        return [
-            {"symbol": "BBCA.JK", "company_name": "Bank Central Asia Tbk", "price": 9975, "change": 175, "change_pct": 1.79, "volume": 68_400_000, "value": 682_000_000_000},
-            {"symbol": "BMRI.JK", "company_name": "Bank Mandiri (Persero) Tbk", "price": 6850, "change": 150, "change_pct": 2.24, "volume": 52_100_000, "value": 356_000_000_000},
-            {"symbol": "BBRI.JK", "company_name": "Bank Rakyat Indonesia Tbk", "price": 4980, "change": -40, "change_pct": -0.80, "volume": 89_200_000, "value": 444_000_000_000},
-            {"symbol": "TLKM.JK", "company_name": "Telkom Indonesia Tbk", "price": 3020, "change": 60, "change_pct": 2.03, "volume": 41_300_000, "value": 124_000_000_000},
-            {"symbol": "ASII.JK", "company_name": "Astra International Tbk", "price": 5050, "change": 25, "change_pct": 0.50, "volume": 33_900_000, "value": 171_000_000_000},
-        ]
+    if "/v2/companies/top-changes/" in endpoint:
+        return {
+            "top_gainers": {
+                "1d": [
+                    {"symbol": "BBCA.JK", "name": "Bank Central Asia Tbk", "last_close_price": 9975, "price_change": 0.0179},
+                    {"symbol": "BMRI.JK", "name": "Bank Mandiri (Persero) Tbk", "last_close_price": 6850, "price_change": 0.0224},
+                    {"symbol": "TLKM.JK", "name": "Telkom Indonesia Tbk", "last_close_price": 3020, "price_change": 0.0203},
+                    {"symbol": "ASII.JK", "name": "Astra International Tbk", "last_close_price": 5050, "price_change": 0.0050},
+                ]
+            }
+        }
+
+    if "/v2/most-traded/" in endpoint:
+        return {
+            today.isoformat(): [
+                {"symbol": "BBRI.JK", "company_name": "Bank Rakyat Indonesia Tbk", "price": 4980, "volume": 89_200_000, "value": 444_000_000_000},
+                {"symbol": "BBCA.JK", "company_name": "Bank Central Asia Tbk", "price": 9975, "volume": 68_400_000, "value": 682_000_000_000},
+                {"symbol": "BMRI.JK", "company_name": "Bank Mandiri (Persero) Tbk", "price": 6850, "volume": 52_100_000, "value": 356_000_000_000},
+                {"symbol": "TLKM.JK", "company_name": "Telkom Indonesia Tbk", "price": 3020, "volume": 41_300_000, "value": 124_000_000_000},
+            ]
+        }
 
     if "/v2/companies/" in endpoint:
         items = []

@@ -238,16 +238,78 @@ def dashboard(request):
     saved_reports = SavedReport.objects.all()[:5]
 
     try:
-        top_movers = sectors_api.get_top_changes()
-        if not isinstance(top_movers, list):
-            top_movers = []
+        raw_movers = sectors_api.get_top_changes(
+            classifications="top_gainers",
+            periods="1d",
+            n_stock=5,
+        )
+        movers_raw = []
+        if isinstance(raw_movers, dict):
+            tg = raw_movers.get("top_gainers", {})
+            if isinstance(tg, dict):
+                movers_raw = tg.get("1d", []) or (next(iter(tg.values())) if tg else [])
+            elif isinstance(tg, list):
+                movers_raw = tg
+            elif "results" in raw_movers and isinstance(raw_movers["results"], list):
+                movers_raw = raw_movers["results"]
+            else:
+                for v in raw_movers.values():
+                    if isinstance(v, list):
+                        movers_raw = v
+                        break
+        elif isinstance(raw_movers, list):
+            movers_raw = raw_movers
+
+        for m in movers_raw:
+            if not isinstance(m, dict):
+                continue
+            sym = m.get("symbol", "")
+            name = m.get("company_name") or m.get("name") or sym
+            price = m.get("price") or m.get("last_close_price") or m.get("close") or 0
+            change_pct = m.get("change_pct")
+            if change_pct is None and "price_change" in m:
+                pc = float(m["price_change"] or 0)
+                change_pct = pc * 100.0 if abs(pc) <= 1.0 and pc != 0 else pc
+            top_movers.append({
+                "symbol": sym,
+                "company_name": name,
+                "price": price,
+                "change_pct": float(change_pct or 0.0),
+            })
     except Exception as exc:
         logger.warning("Failed to fetch top changes for dashboard: %s", exc)
 
     try:
-        most_traded = sectors_api.get_most_traded()
-        if not isinstance(most_traded, list):
-            most_traded = []
+        raw_traded = sectors_api.get_most_traded(n_stock=5)
+        traded_raw = []
+        if isinstance(raw_traded, dict):
+            if raw_traded:
+                latest_date = sorted(raw_traded.keys(), reverse=True)[0]
+                date_val = raw_traded.get(latest_date, [])
+                if isinstance(date_val, list):
+                    traded_raw = date_val
+                elif "results" in raw_traded and isinstance(raw_traded["results"], list):
+                    traded_raw = raw_traded["results"]
+        elif isinstance(raw_traded, list):
+            traded_raw = raw_traded
+
+        for t in traded_raw:
+            if not isinstance(t, dict):
+                continue
+            sym = t.get("symbol", "")
+            name = t.get("company_name") or t.get("name") or sym
+            vol = t.get("volume") or 0
+            price = t.get("price") or t.get("last_close_price") or 0
+            val = t.get("value")
+            if val is None:
+                val = vol * price if vol and price else 0
+            most_traded.append({
+                "symbol": sym,
+                "company_name": name,
+                "volume": vol,
+                "price": price,
+                "value": val,
+            })
     except Exception as exc:
         logger.warning("Failed to fetch most traded for dashboard: %s", exc)
 
