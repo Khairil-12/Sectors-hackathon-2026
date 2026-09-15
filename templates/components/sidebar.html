@@ -1,11 +1,26 @@
-<nav class="hidden w-64 shrink-0 flex-col border-r border-slate-800 bg-surface-900 p-4 lg:flex">
-    <a href="{% url 'research:workspace' %}" class="mb-8 text-xl font-bold text-brand-500">IDX Copilot</a>
-    <div class="space-y-1 text-sm">
-        <a href="{% url 'research:workspace' %}" class="block rounded px-3 py-2 {% if request.resolver_match.url_name == 'workspace' %}bg-brand-600 text-white{% else %}text-slate-300 hover:bg-slate-800{% endif %}">New Analysis</a>
-        <a href="{% url 'research:dashboard' %}" class="block rounded px-3 py-2 {% if request.resolver_match.url_name == 'dashboard' %}bg-brand-600 text-white{% else %}text-slate-300 hover:bg-slate-800{% endif %}">Dashboard</a>
-        <a href="{% url 'research:comparison' %}" class="block rounded px-3 py-2 text-slate-300 hover:bg-slate-800">Compare</a>
-        <a href="{% url 'research:screener' %}" class="block rounded px-3 py-2 text-slate-300 hover:bg-slate-800">Screener</a>
-        <a href="{% url 'research:watchlist' %}" class="block rounded px-3 py-2 {% if request.resolver_match.url_name == 'watchlist' %}bg-brand-600 text-white{% else %}text-slate-300 hover:bg-slate-800{% endif %}">Watchlist</a>
-        <a href="{% url 'research:saved_reports' %}" class="block rounded px-3 py-2 {% if request.resolver_match.url_name == 'saved_reports' %}bg-brand-600 text-white{% else %}text-slate-300 hover:bg-slate-800{% endif %}">Saved Reports</a>
+<nav class="hidden w-64 shrink-0 flex-col border-r border-slate-800 bg-surface-900 p-5 lg:flex">
+    <a href="{% url 'research:workspace' %}" class="mb-8 text-xl font-bold text-brand-400 flex items-center gap-2">
+        <span class="h-2.5 w-2.5 rounded-full bg-brand-500"></span>
+        <span>IDX Copilot</span>
+    </a>
+    <div class="space-y-1.5 text-sm">
+        <a href="{% url 'research:workspace' %}" class="block rounded-lg px-3.5 py-2.5 font-medium transition-colors {% if request.resolver_match.url_name == 'workspace' %}bg-brand-600 text-white shadow-sm{% else %}text-slate-300 hover:bg-surface-950 hover:text-white{% endif %}">
+            New Analysis
+        </a>
+        <a href="{% url 'research:dashboard' %}" class="block rounded-lg px-3.5 py-2.5 font-medium transition-colors {% if request.resolver_match.url_name == 'dashboard' %}bg-brand-600 text-white shadow-sm{% else %}text-slate-300 hover:bg-surface-950 hover:text-white{% endif %}">
+            Dashboard
+        </a>
+        <a href="{% url 'research:comparison' %}" class="block rounded-lg px-3.5 py-2.5 font-medium transition-colors {% if request.resolver_match.url_name == 'comparison' %}bg-brand-600 text-white shadow-sm{% else %}text-slate-300 hover:bg-surface-950 hover:text-white{% endif %}">
+            Compare Stocks
+        </a>
+        <a href="{% url 'research:screener' %}" class="block rounded-lg px-3.5 py-2.5 font-medium transition-colors {% if request.resolver_match.url_name == 'screener' %}bg-brand-600 text-white shadow-sm{% else %}text-slate-300 hover:bg-surface-950 hover:text-white{% endif %}">
+            Screener
+        </a>
+        <a href="{% url 'research:watchlist' %}" class="block rounded-lg px-3.5 py-2.5 font-medium transition-colors {% if request.resolver_match.url_name == 'watchlist' %}bg-brand-600 text-white shadow-sm{% else %}text-slate-300 hover:bg-surface-950 hover:text-white{% endif %}">
+            Watchlist
+        </a>
+        <a href="{% url 'research:saved_reports' %}" class="block rounded-lg px-3.5 py-2.5 font-medium transition-colors {% if request.resolver_match.url_name == 'saved_reports' %}bg-brand-600 text-white shadow-sm{% else %}text-slate-300 hover:bg-surface-950 hover:text-white{% endif %}">
+            Saved Reports
+        </a>
     </div>
 </nav>

@@ -1,18 +1,48 @@
-<div class="bg-surface-900 border border-gray-800 rounded-lg shadow-panel p-4">
+<div class="rounded-xl border border-slate-800 bg-surface-900 p-5 shadow-panel">
     <form method="POST" action="{% url 'research:workspace' %}" class="relative" id="promptForm">
         {% csrf_token %}
-        <textarea name="prompt" id="promptInput" rows="3" class="w-full rounded-lg border border-slate-700 bg-surface-950 px-4 py-3 text-white placeholder-slate-500 focus:border-brand-500 focus:outline-none transition-colors"
-            placeholder="Contoh: Bandingkan BBCA dan BMRI untuk 30 hari terakhir..."></textarea>
-        <div class="flex justify-between items-center mt-3">
-            <div class="flex gap-2 text-xs">
-                <button type="button" class="px-3 py-1 bg-surface-950 border border-gray-700 rounded-full hover:border-brand-500 text-gray-300" data-prompt="Analisis BBCA fundamentals">Analisis Saham</button>
-                <button type="button" class="px-3 py-1 bg-surface-950 border border-gray-700 rounded-full hover:border-brand-500 text-gray-300" data-prompt="Cek Foreign Flow TLKM">Cek Foreign Flow</button>
+        <label for="promptInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Ask Copilot</label>
+        <textarea name="prompt" id="promptInput" rows="3" class="w-full rounded-lg border border-slate-700 bg-surface-950 px-4 py-3 text-white placeholder-slate-500 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors"
+            placeholder="Contoh: Bandingkan valuasi dan foreign flow BBCA dan BMRI dalam 30 hari terakhir..."></textarea>
+        
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex flex-wrap gap-2 text-xs">
+                <button type="button" class="rounded-full border border-slate-700 bg-surface-950 px-3 py-1.5 text-slate-300 hover:border-brand-500 hover:text-white transition-colors" data-prompt="Analisis fundamental dan valuasi BBCA">Analisis BBCA</button>
+                <button type="button" class="rounded-full border border-slate-700 bg-surface-950 px-3 py-1.5 text-slate-300 hover:border-brand-500 hover:text-white transition-colors" data-prompt="Bandingkan performa BBCA dan BMRI 30 hari terakhir">Bandingkan BBCA vs BMRI</button>
+                <button type="button" class="rounded-full border border-slate-700 bg-surface-950 px-3 py-1.5 text-slate-300 hover:border-brand-500 hover:text-white transition-colors" data-prompt="Cek tren foreign flow dan broker akumulasi TLKM">Foreign Flow TLKM</button>
+                <button type="button" class="rounded-full border border-slate-700 bg-surface-950 px-3 py-1.5 text-slate-300 hover:border-brand-500 hover:text-white transition-colors" data-prompt="Screening saham perbankan IDX yang undervalued dengan dividend yield tinggi">Screen Perbankan Value</button>
             </div>
-            <button type="submit" class="bg-brand-600 hover:bg-brand-500 text-white px-6 py-2 rounded-md font-medium transition-colors" id="analyzeBtn" disabled>
-                Analyze
-            </button>
+            
+            <div class="flex items-center gap-3">
+                <span class="hidden text-xs text-slate-500 sm:inline">Tekan Ctrl+Enter untuk kirim</span>
+                <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all" id="analyzeBtn">
+                    Analyze Request
+                </button>
+            </div>
         </div>
     </form>
+
+    <!-- Interactive Progress Stepper -->
+    <div id="loadingStepper" class="hidden mt-6 rounded-lg border border-brand-900/60 bg-brand-950/30 p-5">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-sm font-semibold text-brand-400">Processing Research Request</h3>
+            <span class="text-xs text-slate-400" id="stepTimer">Elapsed: 0s</span>
+        </div>
+        <div class="space-y-3 text-sm">
+            <div class="flex items-center gap-3 text-slate-300" id="step1">
+                <div class="h-2 w-2 rounded-full bg-brand-500 animate-ping"></div>
+                <span>1. Parsing inquiry intent and extracting target IDX tickers</span>
+            </div>
+            <div class="flex items-center gap-3 text-slate-500" id="step2">
+                <div class="h-2 w-2 rounded-full bg-slate-700"></div>
+                <span>2. Fetching real-time market metrics from Sectors Financial API</span>
+            </div>
+            <div class="flex items-center gap-3 text-slate-500" id="step3">
+                <div class="h-2 w-2 rounded-full bg-slate-700"></div>
+                <span>3. Synthesizing fundamental valuation and flow momentum thesis</span>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -20,57 +50,85 @@
     const buttons = document.querySelectorAll('[data-prompt]');
     const textarea = document.getElementById('promptInput');
     const analyzeBtn = document.getElementById('analyzeBtn');
+    const form = document.getElementById('promptForm');
+    const stepper = document.getElementById('loadingStepper');
+    const step1 = document.getElementById('step1');
+    const step2 = document.getElementById('step2');
+    const step3 = document.getElementById('step3');
+    const stepTimer = document.getElementById('stepTimer');
 
     buttons.forEach(btn => {
         btn.addEventListener('click', () => {
             textarea.value = btn.dataset.prompt;
-            analyzeBtn.disabled = false;
+            textarea.focus();
         });
     });
 
-    const form = document.getElementById('promptForm');
-    const originalDisabled = analyzeBtn.disabled;
-    textarea.addEventListener('input', () => {
-        analyzeBtn.disabled = textarea.value.trim().length < 3;
+    textarea.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            form.requestSubmit();
+        }
     });
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        analyzeBtn.disabled = true;
-        analyzeBtn.textContent = "Sedang menganalisis...";
-
-        const formData = new FormData(form);
-        const prompt = formData.get('prompt').trim();
+        const prompt = textarea.value.trim();
 
         if (prompt.length < 3) {
-            alert('Pertanyaan terlalu pendek.');
-            analyzeBtn.disabled = originalDisabled;
-            analyzeBtn.textContent = 'Analyze';
+            alert('Pertanyaan harus berisi minimal 3 karakter.');
             return;
         }
+
+        analyzeBtn.disabled = true;
+        analyzeBtn.textContent = 'Analyzing...';
+        stepper.classList.remove('hidden');
+
+        let seconds = 0;
+        const timerInterval = setInterval(() => {
+            seconds++;
+            stepTimer.textContent = `Elapsed: ${seconds}s`;
+            if (seconds === 2) {
+                step2.classList.remove('text-slate-500');
+                step2.classList.add('text-slate-300');
+                step2.firstElementChild.className = 'h-2 w-2 rounded-full bg-brand-500 animate-ping';
+            } else if (seconds === 4) {
+                step3.classList.remove('text-slate-500');
+                step3.classList.add('text-slate-300');
+                step3.firstElementChild.className = 'h-2 w-2 rounded-full bg-brand-500 animate-ping';
+            }
+        }, 1000);
+
+        const formData = new FormData(form);
 
         try {
             const response = await fetch(form.action, {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    'X-CSRFToken': form.csrfToken || ''
+                    'X-Requested-With': 'XMLHttpRequest',
                 }
             });
 
             const data = await response.json();
+            clearInterval(timerInterval);
+
             if (data.redirect) {
                 window.location.href = data.redirect;
             } else if (data.error) {
                 alert(data.error);
-            } else {
-                window.location.href = '/report/' + data.reportId;
+                stepper.classList.add('hidden');
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = 'Analyze Request';
+            } else if (data.reportId) {
+                window.location.href = `/report/${data.reportId}/`;
             }
         } catch (err) {
-            alert('Terjadi kesalahan. Silakan coba lagi.');
-        } finally {
-            analyzeBtn.disabled = originalDisabled;
-            analyzeBtn.textContent = 'Analyze';
+            clearInterval(timerInterval);
+            alert('Terjadi kesalahan saat memproses permintaan. Silakan coba kembali.');
+            stepper.classList.add('hidden');
+            analyzeBtn.disabled = false;
+            analyzeBtn.textContent = 'Analyze Request';
         }
     });
 })();

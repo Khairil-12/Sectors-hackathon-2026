@@ -2,27 +2,64 @@
 {% block title %}Research Workspace - IDX Copilot{% endblock %}
 {% block content %}
 <section class="mx-auto max-w-5xl space-y-8">
-    <div class="space-y-3">
-        <p class="text-sm font-medium text-brand-500">AI IDX Investment Research Copilot</p>
-        <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Research Indonesian stocks with grounded market data.</h1>
-        <p class="max-w-3xl text-slate-400">Ask about fundamentals, price movement, broker activity, foreign flow, sector performance, and IDX news.</p>
+    <div class="space-y-2">
+        <div class="inline-flex items-center gap-2 rounded-full border border-brand-800/80 bg-brand-950/60 px-3 py-1 text-xs font-medium text-brand-400">
+            <span>Indonesia Stock Exchange Equity Copilot</span>
+        </div>
+        <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Grounded AI equity research for IDX stocks.</h1>
+        <p class="max-w-2xl text-sm text-slate-400 leading-relaxed">
+            Query real-time valuations, bandarmologi broker accumulation, foreign institutional flows, and quarterly progression with strict schema validation.
+        </p>
     </div>
 
     {% include "components/prompt_composer.html" with form=form %}
 
-    <section class="space-y-3">
-        <h2 class="text-sm font-semibold text-slate-300">Try an example</h2>
-        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <button type="button" class="rounded-lg border border-slate-800 bg-surface-900 p-4 text-left text-sm text-slate-300 hover:border-brand-500">Analyze BBCA fundamentals</button>
-            <button type="button" class="rounded-lg border border-slate-800 bg-surface-900 p-4 text-left text-sm text-slate-300 hover:border-brand-500">Compare BBCA and BMRI</button>
-            <button type="button" class="rounded-lg border border-slate-800 bg-surface-900 p-4 text-left text-sm text-slate-300 hover:border-brand-500">Check TLKM foreign flow</button>
-            <button type="button" class="rounded-lg border border-slate-800 bg-surface-900 p-4 text-left text-sm text-slate-300 hover:border-brand-500">Find banking stock movers</button>
+    <!-- Research Mode Capability Cards -->
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="rounded-xl border border-slate-800 bg-surface-900 p-4">
+            <h3 class="text-sm font-semibold text-slate-200">Fundamental Valuation</h3>
+            <p class="mt-1 text-xs text-slate-400">P/E, P/B, ROE, revenue & net profit trajectory benchmarked against subsectors.</p>
         </div>
-    </section>
+        <div class="rounded-xl border border-slate-800 bg-surface-900 p-4">
+            <h3 class="text-sm font-semibold text-slate-200">Foreign Capital Flow</h3>
+            <p class="mt-1 text-xs text-slate-400">Track multi-day net foreign buy and sell pressure across individual IDX tickers.</p>
+        </div>
+        <div class="rounded-xl border border-slate-800 bg-surface-900 p-4">
+            <h3 class="text-sm font-semibold text-slate-200">Bandarmologi & Brokers</h3>
+            <p class="mt-1 text-xs text-slate-400">Analyze top buyer and seller broker concentrations to detect accumulation phases.</p>
+        </div>
+        <div class="rounded-xl border border-slate-800 bg-surface-900 p-4">
+            <h3 class="text-sm font-semibold text-slate-200">Data Citations</h3>
+            <p class="mt-1 text-xs text-slate-400">Every thesis bullet is tied back directly to Sectors API v2 endpoints and dates.</p>
+        </div>
+    </div>
 
-    <section class="rounded-lg border border-dashed border-slate-800 bg-surface-900/50 p-8 text-center">
-        <h2 class="font-semibold text-white">No research report yet</h2>
-        <p class="mt-2 text-sm text-slate-400">Submit a question to generate structured analysis with data citations.</p>
-    </section>
+    <!-- Recent Analyses Section -->
+    <div class="space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-base font-semibold text-white">Recent Research Reports</h2>
+            <a href="{% url 'research:saved_reports' %}" class="text-xs font-medium text-brand-400 hover:text-brand-300">View all reports →</a>
+        </div>
+
+        {% if recent_reports %}
+            <div class="grid gap-4 sm:grid-cols-3">
+                {% for item in recent_reports %}
+                    <a href="{% url 'research:report_detail' item.pk %}" class="group block rounded-xl border border-slate-800 bg-surface-900 p-4 hover:border-brand-500/80 transition-all">
+                        <div class="flex items-center justify-between text-xs text-slate-400">
+                            <span class="font-bold text-brand-400 uppercase">{{ item.symbols|join:', ' }}</span>
+                            <span>{{ item.created_at|date:"d M Y" }}</span>
+                        </div>
+                        <h3 class="mt-2 text-sm font-semibold text-slate-200 group-hover:text-white line-clamp-2">{{ item.title }}</h3>
+                        <p class="mt-2 text-xs text-slate-400 line-clamp-2">{{ item.report_data.summary }}</p>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="rounded-xl border border-dashed border-slate-800 bg-surface-900/40 p-8 text-center">
+                <h3 class="text-sm font-medium text-slate-300">No previous reports found</h3>
+                <p class="mt-1 text-xs text-slate-500">Ask a question above or pick an example prompt to generate your first AI synthesis.</p>
+            </div>
+        {% endif %}
+    </div>
 </section>
 {% endblock %}

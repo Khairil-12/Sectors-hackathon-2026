@@ -2,7 +2,76 @@
 {% block title %}Saved Reports - IDX Copilot{% endblock %}
 {% block content %}
 <section class="mx-auto max-w-6xl space-y-8">
-    <div><p class="text-sm text-brand-500">Research library</p><h1 class="mt-2 text-3xl font-bold">Saved reports</h1><p class="mt-2 text-slate-400">Keep structured IDX analyses for later review.</p></div>
-    <div class="rounded-lg border border-dashed border-slate-800 bg-surface-900/50 p-12 text-center"><h2 class="font-semibold">No saved reports</h2><p class="mt-2 text-sm text-slate-400">Reports saved from completed analyses will appear here.</p></div>
+    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div class="space-y-2">
+            <div class="inline-flex items-center gap-2 rounded-full border border-brand-800/80 bg-brand-950/60 px-3 py-1 text-xs font-medium text-brand-400">
+                <span>Research Library</span>
+            </div>
+            <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Saved AI Research Reports</h1>
+            <p class="max-w-xl text-sm text-slate-400">
+                Access your generated equity reports, valuation conclusions, and grounded citation logs.
+            </p>
+        </div>
+        <a href="{% url 'research:workspace' %}" class="rounded-lg bg-brand-600 px-4 py-2.5 text-center text-xs font-semibold text-white hover:bg-brand-500 transition-colors whitespace-nowrap">
+            + New Analysis
+        </a>
+    </div>
+
+    <!-- Search / Filter Input -->
+    <div class="rounded-xl border border-slate-800 bg-surface-900 p-5 shadow-panel">
+        <form method="GET" action="{% url 'research:saved_reports' %}" class="flex flex-col gap-3 sm:flex-row">
+            <input type="text" name="q" value="{{ query }}" placeholder="Search saved reports by symbol or keywords..." class="min-w-0 flex-1 rounded-lg border border-slate-700 bg-surface-950 px-4 py-2.5 text-sm text-white placeholder-slate-500 focus:border-brand-500 focus:outline-none transition-colors">
+            <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-brand-500 transition-colors">Search Library</button>
+            {% if query %}
+                <a href="{% url 'research:saved_reports' %}" class="rounded-lg border border-slate-700 bg-surface-950 px-4 py-2.5 text-xs font-medium text-slate-400 hover:text-white transition-colors text-center">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Reports Grid -->
+    <div class="space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-base font-semibold text-white">Archived Reports ({{ reports|length }})</h2>
+        </div>
+
+        {% if reports %}
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {% for report in reports %}
+                    <div class="report-card rounded-xl border border-slate-800 bg-surface-900 p-5 space-y-3 shadow-panel hover:border-slate-700 transition-all flex flex-col justify-between">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex flex-wrap gap-1">
+                                    {% for sym in report.symbols %}
+                                        <span class="rounded bg-brand-900/60 border border-brand-800 px-2 py-0.5 text-xs font-bold text-brand-400 font-mono">{{ sym }}</span>
+                                    {% endfor %}
+                                </div>
+                                <span class="text-xs text-slate-500">{{ report.created_at|date:"d M Y" }}</span>
+                            </div>
+
+                            <h3 class="text-base font-bold text-white line-clamp-2">{{ report.title }}</h3>
+                            <p class="text-xs text-slate-400 line-clamp-3">{{ report.report_data.summary }}</p>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+                            <a href="{% url 'research:report_detail' report.pk %}" class="text-xs font-semibold text-brand-400 hover:text-brand-300 transition-colors">
+                                View Full Report →
+                            </a>
+                            <form method="POST" action="{% url 'research:report_delete' report.pk %}" hx-post="{% url 'research:report_delete' report.pk %}" hx-target="closest .report-card" hx-swap="outerHTML" onsubmit="return confirm('Delete this report?');">
+                                {% csrf_token %}
+                                <button type="submit" class="text-xs text-slate-500 hover:text-red-400 transition-colors" title="Delete report">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="rounded-xl border border-dashed border-slate-800 bg-surface-900/40 p-12 text-center">
+                <h3 class="text-base font-semibold text-white">No saved research reports found</h3>
+                <p class="mt-2 text-sm text-slate-400">Run an analysis in the research workspace to automatically generate and save structured reports.</p>
+            </div>
+        {% endif %}
+    </div>
 </section>
 {% endblock %}

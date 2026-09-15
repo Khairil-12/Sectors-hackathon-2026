@@ -2,7 +2,77 @@
 {% block title %}Watchlist - IDX Copilot{% endblock %}
 {% block content %}
 <section class="mx-auto max-w-6xl space-y-8">
-    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p class="text-sm text-brand-500">Portfolio tools</p><h1 class="mt-2 text-3xl font-bold">Watchlist</h1><p class="mt-2 text-slate-400">Monitor symbols before starting deeper research.</p></div><a href="{% url 'research:workspace' %}" class="rounded-md bg-brand-600 px-4 py-2 text-center text-sm font-medium hover:bg-brand-500">New analysis</a></div>
-    <div class="rounded-lg border border-dashed border-slate-800 bg-surface-900/50 p-12 text-center"><h2 class="font-semibold">Your watchlist is empty</h2><p class="mt-2 text-sm text-slate-400">Analyze a stock, then add it to your watchlist.</p></div>
+    <div class="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div class="space-y-2">
+            <div class="inline-flex items-center gap-2 rounded-full border border-brand-800/80 bg-brand-950/60 px-3 py-1 text-xs font-medium text-brand-400">
+                <span>Personal Equity Monitor</span>
+            </div>
+            <h1 class="text-3xl font-bold tracking-tight text-white sm:text-4xl">Watchlist</h1>
+            <p class="max-w-xl text-sm text-slate-400">
+                Keep track of target IDX companies for one-click fundamental reviews and broker flow checks.
+            </p>
+        </div>
+        <a href="{% url 'research:workspace' %}" class="rounded-lg bg-brand-600 px-4 py-2.5 text-center text-xs font-semibold text-white hover:bg-brand-500 transition-colors whitespace-nowrap">
+            + New Analysis
+        </a>
+    </div>
+
+    <!-- Quick Add Form -->
+    <div class="rounded-xl border border-slate-800 bg-surface-900 p-6 shadow-panel">
+        <form method="POST" action="{% url 'research:watchlist_add' %}" class="flex flex-col gap-3 sm:flex-row sm:items-center">
+            {% csrf_token %}
+            <label for="id_symbol" class="text-xs font-semibold uppercase tracking-wider text-slate-400 sm:w-32">Add Symbol:</label>
+            <input type="text" name="symbol" id="id_symbol" placeholder="e.g. BBCA, BMRI, TLKM" class="uppercase flex-1 rounded-lg border border-slate-700 bg-surface-950 px-4 py-2.5 text-white placeholder-slate-500 focus:border-brand-500 focus:outline-none transition-colors">
+            <button type="submit" class="rounded-lg bg-brand-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-brand-500 transition-colors">
+                Add to Watchlist
+            </button>
+        </form>
+    </div>
+
+    <!-- Watchlist Tickers Grid -->
+    <div class="space-y-4">
+        <div class="flex items-center justify-between">
+            <h2 class="text-base font-semibold text-white">Tracked Companies ({{ watchlist_items|length }})</h2>
+        </div>
+
+        {% if watchlist_items %}
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {% for item in watchlist_items %}
+                    <div class="watchlist-card rounded-xl border border-slate-800 bg-surface-900 p-5 space-y-4 shadow-panel hover:border-slate-700 transition-all">
+                        <div class="flex items-center justify-between">
+                            <span class="rounded-md bg-brand-900/60 border border-brand-800 px-2.5 py-1 text-xs font-bold text-brand-400 font-mono">{{ item.symbol }}</span>
+                            <form method="POST" action="{% url 'research:watchlist_remove' item.id %}" hx-post="{% url 'research:watchlist_remove' item.id %}" hx-target="closest .watchlist-card" hx-swap="outerHTML">
+                                {% csrf_token %}
+                                <button type="submit" class="text-xs text-slate-500 hover:text-red-400 transition-colors" title="Remove from watchlist">
+                                    Remove
+                                </button>
+                            </form>
+                        </div>
+
+                        <div>
+                            <h3 class="text-base font-bold text-white">{{ item.company_name }}</h3>
+                            <p class="text-xs text-slate-400">Added: {{ item.added_at|date:"d M Y" }}</p>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+                            <span class="text-xs text-slate-400">P/E: <strong class="text-slate-200">{% if item.pe_ratio != "N/A" %}{{ item.pe_ratio }}x{% else %}N/A{% endif %}</strong></span>
+                            <form method="POST" action="{% url 'research:workspace' %}" class="inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="prompt" value="Analisis komprehensif saham {{ item.symbol }}">
+                                <button type="submit" class="rounded-md bg-brand-600/90 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-500 transition-colors">
+                                    Analyze →
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="rounded-xl border border-dashed border-slate-800 bg-surface-900/40 p-12 text-center">
+                <h3 class="text-base font-semibold text-white">Your watchlist is currently empty</h3>
+                <p class="mt-2 text-sm text-slate-400">Add IDX stock symbols above to monitor your favorite companies in one place.</p>
+            </div>
+        {% endif %}
+    </div>
 </section>
 {% endblock %}
