@@ -40,10 +40,12 @@ class CompanyReportEndpointTest(TestCase):
         with patch("research.services.sectors_api.requests.get") as request_get:
             request_get.return_value.status_code = 200
             request_get.return_value.json.return_value = {"symbol": "BBCA.JK"}
-            get_company_report("BBCA", "overview")
+            with self.settings(SECTORS_API_KEY="test_key_123"):
+                cache.clear()
+                get_company_report("BBCA", "overview")
 
-        self.assertIn("/v2/company/report/BBCA/", request_get.call_args.args[0])
-        self.assertEqual(request_get.call_args.kwargs["params"], {"sections": "overview"})
+            self.assertIn("/v2/company/report/BBCA/", request_get.call_args.args[0])
+            self.assertEqual(request_get.call_args.kwargs["params"], {"sections": "overview"})
 
 
 class CacheTest(TestCase):
