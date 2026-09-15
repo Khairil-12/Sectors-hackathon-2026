@@ -11,6 +11,7 @@ from openai import APIError, APITimeoutError, OpenAI
 
 from research.schemas import COPILOT_REPORT_SCHEMA, INTENT_PARSER_SCHEMA
 from research.services.data_distiller import distill_context
+from research.services.prompt_guard import validate_prompt
 
 import os
 
@@ -95,11 +96,24 @@ def _call_groq_json(
 
 def _fallback_intent(user_prompt: str) -> dict[str, Any]:
     """Fallback heuristic intent parser for offline testing and demo mode."""
+    guard = validate_prompt(user_prompt)
+    end_date = date.today()
+    start_date = end_date - timedelta(days=30)
+
+    if not guard.is_allowed:
+        return {
+            "analysis_type": "out_of_scope",
+            "is_valid_query": False,
+            "rejection_reason": guard.reason,
+            "symbols": [],
+            "date_range": {"start": start_date.isoformat(), "end": end_date.isoformat()},
+            "required_endpoints": [],
+            "user_goal_summary": guard.reason,
+        }
+
     upper = user_prompt.upper()
     found_symbols = list(dict.fromkeys(re.findall(r"\b[A-Z]{4}\b", upper)))
     valid_symbols = [s for s in found_symbols if s not in {"BAND", "CEK", "DARI", "PADA", "UNTU", "HARI"}]
-    if not valid_symbols:
-        valid_symbols = ["BBCA"]
 
     analysis_type = "single_stock"
     if len(valid_symbols) > 1 or any(w in upper for w in ["BANDING", "COMPARE", "VS", "VERSUS"]):
@@ -111,8 +125,17 @@ def _fallback_intent(user_prompt: str) -> dict[str, Any]:
     elif any(w in upper for w in ["SEKTOR", "SECTOR", "INDUSTRI"]):
         analysis_type = "macro_sector"
 
-    end_date = date.today()
-    start_date = end_date - timedelta(days=30)
+    if not valid_symbols and analysis_type not in ("screener", "macro_sector"):
+        return {
+            "analysis_type": "out_of_scope",
+            "is_valid_query": False,
+            "rejection_reason": "Tidak ditemukan kode saham IDX atau sektor dalam pertanyaan Anda.",
+            "symbols": [],
+            "date_range": {"start": start_date.isoformat(), "end": end_date.isoformat()},
+            "required_endpoints": [],
+            "user_goal_summary": "Pertanyaan di luar lingkup analisis saham IDX.",
+        }
+
     if "7" in user_prompt or "SEMINGGU" in upper:
         start_date = end_date - timedelta(days=7)
     elif "90" in user_prompt or "3 BULAN" in upper:
@@ -124,10 +147,11 @@ def _fallback_intent(user_prompt: str) -> dict[str, Any]:
 
     return {
         "analysis_type": analysis_type,
+        "is_valid_query": True,
         "symbols": valid_symbols[:4],
         "date_range": {"start": start_date.isoformat(), "end": end_date.isoformat()},
         "required_endpoints": endpoints,
-        "user_goal_summary": f"Research analysis for {', '.join(valid_symbols)}",
+        "user_goal_summary": f"Research analysis for {', '.join(valid_symbols) if valid_symbols else 'market'}",
     }
 
 
@@ -196,10 +220,26 @@ def _fallback_report(user_prompt: str, context_data: dict[str, Any]) -> dict[str
 
 
 def parse_user_intent(user_prompt: str) -> dict[str, Any]:
+    guard = validate_prompt(user_prompt)
+    if not guard.is_allowed:
+        return {
+            "analysis_type": "out_of_scope",
+            "is_valid_query": False,
+            "rejection_reason": guard.reason,
+            "symbols": [],
+            "required_endpoints": [],
+            "user_goal_summary": guard.reason,
+        }
+
     try:
         return _call_groq_json(
             model=FAST_MODEL,
-            instructions="You are an expert IDX Intent Parser. Extract tickers, dates, analysis mode and required endpoints. Return valid JSON object.",
+            instructions=(
+                "You are an expert IDX Intent Parser and Domain Guard. "
+                "Analyze if the user query is about the Indonesia Stock Exchange (IDX), stocks, financial analysis, sectors, or market data. "
+                "If the query is unrelated/out-of-domain (e.g. general programming, cooking, chit-chat, non-financial), set analysis_type to 'out_of_scope', is_valid_query to false, symbols to [], and required_endpoints to []. "
+                "Otherwise, extract tickers (4 capital letters, e.g. BBCA, BMRI), date range (YYYY-MM-DD), analysis mode, and required endpoints. Return valid JSON object."
+            ),
             input_text=user_prompt.strip(),
             schema=INTENT_PARSER_SCHEMA,
             max_tokens=512,

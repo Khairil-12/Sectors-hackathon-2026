@@ -44,7 +44,17 @@ def workspace(request):
         logger.error("Unexpected error in workspace analysis: %s", error, exc_info=True)
         return JsonResponse({"error": "Terjadi kesalahan internal saat analisis."}, status=500)
 
-    report = analysis["report"]
+    if analysis.get("is_out_of_scope"):
+        return JsonResponse(
+            {
+                "is_out_of_scope": True,
+                "error": analysis.get("message", "Pertanyaan di luar lingkup riset saham IDX."),
+                "suggestions": analysis.get("suggestions", []),
+            },
+            status=422,
+        )
+
+    report = analysis.get("report", {})
     saved = SavedReport.objects.create(
         title=report.get("title", "Equity Research Report"),
         symbols=report.get("analyzed_symbols", []),
