@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load research_tags %}
 {% block title %}Stock Comparison - IDX Copilot{% endblock %}
 {% block content %}
 <section class="mx-auto max-w-6xl space-y-8">
@@ -56,7 +57,7 @@
                 {% for stock in comparison_data %}
                     <div class="rounded-xl border border-slate-800 bg-surface-900 p-5 space-y-3 shadow-panel hover:border-slate-700 transition-all">
                         <div class="flex items-center justify-between">
-                            <span class="rounded-md bg-brand-900/60 border border-brand-800 px-2.5 py-1 text-xs font-bold text-brand-400 font-mono">{{ stock.symbol }}</span>
+                            <span class="rounded-md bg-brand-900/60 border border-brand-800 px-2.5 py-1 text-xs font-bold text-brand-400 font-mono">{{ stock.symbol|clean_ticker }}</span>
                             <span class="text-xs text-slate-400">{{ stock.sub_sector }}</span>
                         </div>
                         <div>
@@ -65,7 +66,7 @@
                         </div>
                         <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
                             <span class="text-slate-400">Latest Price:</span>
-                            <span class="font-semibold text-white font-mono">{% if stock.last_price %}Rp {{ stock.last_price|floatformat:0 }}{% else %}N/A{% endif %}</span>
+                            <span class="font-semibold text-white font-mono">{{ stock.last_price|format_currency:False }}</span>
                         </div>
                     </div>
                 {% endfor %}
@@ -78,7 +79,7 @@
                         <tr>
                             <th scope="col" class="px-6 py-4">Financial Metric</th>
                             {% for stock in comparison_data %}
-                                <th scope="col" class="px-6 py-4 text-brand-400 font-mono font-bold">{{ stock.symbol }}</th>
+                                <th scope="col" class="px-6 py-4 text-brand-400 font-mono font-bold">{{ stock.symbol|clean_ticker }}</th>
                             {% endfor %}
                         </tr>
                     </thead>
@@ -86,38 +87,38 @@
                         <tr class="hover:bg-surface-950/50 transition-colors">
                             <td class="px-6 py-4 font-medium text-white">Market Capitalization</td>
                             {% for stock in comparison_data %}
-                                <td class="px-6 py-4 font-mono text-xs">{% if stock.market_cap %}Rp {{ stock.market_cap|floatformat:0 }}{% else %}N/A{% endif %}</td>
+                                <td class="px-6 py-4 font-mono text-xs" title="{{ stock.market_cap|format_currency:False }}">{{ stock.market_cap|format_currency }}</td>
                             {% endfor %}
                         </tr>
                         <tr class="hover:bg-surface-950/50 transition-colors">
                             <td class="px-6 py-4 font-medium text-white">Price-to-Earnings (P/E)</td>
                             {% for stock in comparison_data %}
-                                <td class="px-6 py-4 font-mono font-semibold">{% if stock.pe_ratio %}{{ stock.pe_ratio }}x{% else %}N/A{% endif %}</td>
+                                <td class="px-6 py-4 font-mono font-semibold">{{ stock.pe_ratio|format_ratio }}</td>
                             {% endfor %}
                         </tr>
                         <tr class="hover:bg-surface-950/50 transition-colors">
                             <td class="px-6 py-4 font-medium text-white">Price-to-Book (P/B)</td>
                             {% for stock in comparison_data %}
-                                <td class="px-6 py-4 font-mono font-semibold">{% if stock.pb_ratio %}{{ stock.pb_ratio }}x{% else %}N/A{% endif %}</td>
+                                <td class="px-6 py-4 font-mono font-semibold">{{ stock.pb_ratio|format_ratio }}</td>
                             {% endfor %}
                         </tr>
                         <tr class="hover:bg-surface-950/50 transition-colors">
                             <td class="px-6 py-4 font-medium text-white">Dividend Yield</td>
                             {% for stock in comparison_data %}
-                                <td class="px-6 py-4 font-mono">{% if stock.dividend_yield %}{{ stock.dividend_yield|floatformat:2 }}%{% else %}N/A{% endif %}</td>
+                                <td class="px-6 py-4 font-mono">{{ stock.dividend_yield|format_percent }}</td>
                             {% endfor %}
                         </tr>
                         <tr class="hover:bg-surface-950/50 transition-colors">
                             <td class="px-6 py-4 font-medium text-white">Return on Equity (ROE)</td>
                             {% for stock in comparison_data %}
-                                <td class="px-6 py-4 font-mono">{% if stock.roe %}{{ stock.roe|floatformat:2 }}%{% else %}N/A{% endif %}</td>
+                                <td class="px-6 py-4 font-mono">{{ stock.roe|format_percent }}</td>
                             {% endfor %}
                         </tr>
                         <tr class="hover:bg-surface-950/50 transition-colors">
                             <td class="px-6 py-4 font-medium text-white">30-Day Net Foreign Flow</td>
                             {% for stock in comparison_data %}
-                                <td class="px-6 py-4 font-mono text-xs {% if stock.net_foreign_30d > 0 %}text-emerald-400{% elif stock.net_foreign_30d < 0 %}text-red-400{% endif %}">
-                                    {% if stock.net_foreign_30d %}Rp {{ stock.net_foreign_30d|floatformat:0 }}{% else %}Rp 0{% endif %}
+                                <td class="px-6 py-4 font-mono text-xs {% if stock.net_foreign_30d > 0 %}text-emerald-400{% elif stock.net_foreign_30d < 0 %}text-red-400{% endif %}" title="{{ stock.net_foreign_30d|format_currency:False }}">
+                                    {{ stock.net_foreign_30d|format_currency }}
                                 </td>
                             {% endfor %}
                         </tr>

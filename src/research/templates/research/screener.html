@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load research_tags %}
 {% block title %}Company Screener - IDX Copilot{% endblock %}
 {% block content %}
 <section class="mx-auto max-w-6xl space-y-8">
@@ -44,6 +45,9 @@
                 <a href="{% url 'research:screener' %}?preset=banks" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors {% if preset == 'banks' %}border-brand-500 text-brand-400 bg-brand-950/40{% endif %}">Top Banks</a>
                 <a href="{% url 'research:screener' %}?preset=dividends" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors {% if preset == 'dividends' %}border-brand-500 text-brand-400 bg-brand-950/40{% endif %}">High Dividend Yield</a>
                 <a href="{% url 'research:screener' %}?preset=value" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors {% if preset == 'value' %}border-brand-500 text-brand-400 bg-brand-950/40{% endif %}">Undervalued Opportunities</a>
+                {% if preset or query %}
+                    <a href="{% url 'research:screener' %}" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-400 hover:text-white transition-colors">Reset All</a>
+                {% endif %}
             </div>
         </form>
     </div>
@@ -78,18 +82,38 @@
                         {% for item in results %}
                             <tr class="hover:bg-surface-950/50 transition-colors">
                                 <td class="px-6 py-4 font-bold text-brand-400 font-mono text-sm">
-                                    <span class="rounded bg-brand-900/60 border border-brand-800 px-2 py-0.5">{{ item.symbol }}</span>
+                                    <span class="rounded bg-brand-900/60 border border-brand-800 px-2 py-0.5" title="{{ item.symbol }}">{{ item.symbol|clean_ticker }}</span>
                                 </td>
                                 <td class="px-6 py-4 font-medium text-white">{{ item.company_name }}</td>
-                                <td class="px-6 py-4 text-xs text-slate-400">{{ item.sub_sector|default:"N/A" }}</td>
-                                <td class="px-6 py-4 font-mono text-xs">{% if item.market_cap %}Rp {{ item.market_cap|floatformat:0 }}{% else %}N/A{% endif %}</td>
-                                <td class="px-6 py-4 font-mono font-semibold">{% if item.pe_ratio %}{{ item.pe_ratio }}x{% else %}N/A{% endif %}</td>
-                                <td class="px-6 py-4 font-mono font-semibold">{% if item.pb_ratio %}{{ item.pb_ratio }}x{% else %}N/A{% endif %}</td>
-                                <td class="px-6 py-4 font-mono">{% if item.dividend_yield %}{{ item.dividend_yield|floatformat:2 }}%{% else %}N/A{% endif %}</td>
+                                <td class="px-6 py-4 text-xs text-slate-400">{{ item.sub_sector|default:"General" }}</td>
+                                <td class="px-6 py-4 font-mono text-xs" title="{{ item.market_cap|format_currency:False }}">
+                                    {{ item.market_cap|format_currency }}
+                                </td>
+                                <td class="px-6 py-4 font-mono font-semibold">
+                                    {% if item.pe_ratio and item.pe_ratio != "N/A" %}
+                                        <span class="text-slate-200">{{ item.pe_ratio|format_ratio }}</span>
+                                    {% else %}
+                                        <span class="text-slate-500">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 font-mono font-semibold">
+                                    {% if item.pb_ratio and item.pb_ratio != "N/A" %}
+                                        <span class="text-slate-200">{{ item.pb_ratio|format_ratio }}</span>
+                                    {% else %}
+                                        <span class="text-slate-500">N/A</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 font-mono">
+                                    {% if item.dividend_yield and item.dividend_yield != "N/A" %}
+                                        <span class="text-emerald-400 font-medium">{{ item.dividend_yield|format_percent }}</span>
+                                    {% else %}
+                                        <span class="text-slate-500">N/A</span>
+                                    {% endif %}
+                                </td>
                                 <td class="px-6 py-4 text-right">
                                     <form method="POST" action="{% url 'research:workspace' %}" class="inline">
                                         {% csrf_token %}
-                                        <input type="hidden" name="prompt" value="Analisis lengkap fundamental dan valuasi {{ item.symbol }}">
+                                        <input type="hidden" name="prompt" value="Analisis lengkap fundamental dan valuasi {{ item.symbol|clean_ticker }}">
                                         <button type="submit" class="inline-flex items-center gap-1 rounded-md bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-brand-500 transition-colors">
                                             <span>Analyze</span>
                                         </button>

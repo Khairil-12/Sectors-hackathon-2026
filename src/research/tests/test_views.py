@@ -175,8 +175,8 @@ class ViewRoutingTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Market Dashboard")
         self.assertContains(response, "Watchlist Tracked")
-        self.assertContains(response, "BBCA.JK")
-        self.assertContains(response, "BBRI.JK")
+        self.assertContains(response, "BBCA")
+        self.assertContains(response, "BBRI")
 
     @patch("research.services.sectors_api.get_company_report")
     def test_watchlist_view_get(self, mock_comp_rep):

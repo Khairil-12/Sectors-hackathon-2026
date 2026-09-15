@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load research_tags %}
 {% block title %}Market Dashboard - IDX Copilot{% endblock %}
 {% block content %}
 <section class="mx-auto max-w-6xl space-y-8">
@@ -94,11 +95,11 @@
                         {% for item in top_movers %}
                             <tr class="hover:bg-surface-950/60 transition-colors">
                                 <td class="py-3 px-2">
-                                    <div class="font-bold text-brand-400 font-mono text-sm">{{ item.symbol }}</div>
+                                    <div class="font-bold text-brand-400 font-mono text-sm">{{ item.symbol|clean_ticker }}</div>
                                     <div class="text-xs text-slate-400 line-clamp-1">{{ item.company_name }}</div>
                                 </td>
                                 <td class="py-3 px-2 text-right">
-                                    <div class="text-sm font-bold text-white font-mono">Rp {{ item.price|floatformat:0 }}</div>
+                                    <div class="text-sm font-bold text-white font-mono">{{ item.price|format_currency:False }}</div>
                                     <div class="text-xs font-semibold font-mono {% if item.change_pct >= 0 %}text-emerald-400{% else %}text-red-400{% endif %}">
                                         {% if item.change_pct >= 0 %}+{% endif %}{{ item.change_pct|floatformat:2 }}%
                                     </div>
@@ -106,7 +107,7 @@
                                 <td class="py-3 px-2 text-right">
                                     <form method="POST" action="{% url 'research:workspace' %}" class="inline">
                                         {% csrf_token %}
-                                        <input type="hidden" name="prompt" value="Analisis performa dan valuasi {{ item.symbol }}">
+                                        <input type="hidden" name="prompt" value="Analisis performa dan valuasi {{ item.symbol|clean_ticker }}">
                                         <button type="submit" class="rounded bg-surface-800 border border-slate-700 px-2.5 py-1 text-[11px] font-medium text-slate-300 hover:bg-brand-600 hover:text-white hover:border-brand-600 transition-colors">
                                             Analyze
                                         </button>
@@ -138,17 +139,19 @@
                         {% for item in most_traded %}
                             <tr class="hover:bg-surface-950/60 transition-colors">
                                 <td class="py-3 px-2">
-                                    <div class="font-bold text-brand-400 font-mono text-sm">{{ item.symbol }}</div>
+                                    <div class="font-bold text-brand-400 font-mono text-sm">{{ item.symbol|clean_ticker }}</div>
                                     <div class="text-xs text-slate-400 line-clamp-1">{{ item.company_name }}</div>
                                 </td>
                                 <td class="py-3 px-2 text-right">
-                                    <div class="text-sm font-mono text-slate-200">{% if item.value %}Rp {{ item.value|floatformat:0 }}{% else %}N/A{% endif %}</div>
+                                    <div class="text-sm font-mono text-slate-200" title="{{ item.value|format_currency:False }}">
+                                        {{ item.value|format_currency }}
+                                    </div>
                                     <div class="text-xs text-slate-400 font-mono">Turnover</div>
                                 </td>
                                 <td class="py-3 px-2 text-right">
                                     <form method="POST" action="{% url 'research:workspace' %}" class="inline">
                                         {% csrf_token %}
-                                        <input type="hidden" name="prompt" value="Analisis likuiditas dan broker flow {{ item.symbol }}">
+                                        <input type="hidden" name="prompt" value="Analisis likuiditas dan broker flow {{ item.symbol|clean_ticker }}">
                                         <button type="submit" class="rounded bg-surface-800 border border-slate-700 px-2.5 py-1 text-[11px] font-medium text-slate-300 hover:bg-brand-600 hover:text-white hover:border-brand-600 transition-colors">
                                             Analyze
                                         </button>
@@ -183,7 +186,7 @@
                     <div class="flex items-center justify-between text-xs text-slate-400">
                         <div class="flex flex-wrap gap-1">
                             {% for sym in report.symbols %}
-                                <span class="rounded bg-brand-900/60 border border-brand-800 px-2 py-0.5 text-xs font-bold text-brand-400 font-mono">{{ sym }}</span>
+                                <span class="rounded bg-brand-900/60 border border-brand-800 px-2 py-0.5 text-xs font-bold text-brand-400 font-mono">{{ sym|clean_ticker }}</span>
                             {% endfor %}
                         </div>
                         <span class="text-[11px] text-slate-500">{{ report.created_at|date:"d M Y" }}</span>

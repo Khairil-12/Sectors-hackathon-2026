@@ -223,8 +223,12 @@ def _get_mock_fallback(endpoint: str, params: dict[str, Any]) -> dict | list | N
                 "sub_sector": overview["sub_sector"],
                 "market_cap": overview["market_cap"],
                 "pe_ratio": val["pe_ratio"],
+                "pe_ttm": val["pe_ratio"],
+                "forward_pe": val["pe_ratio"],
                 "pb_ratio": val["pb_ratio"],
+                "pb_mrq": val["pb_ratio"],
                 "dividend_yield": val["dividend_yield"],
+                "yield_ttm": val["dividend_yield"],
             })
         return {"count": len(items), "results": items}
 
