@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{% static 'dist/app.css' %}">
     <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmReVU07Z0CYxN50GQXYNX45P4/fhy/epMvxyBi" crossorigin="anonymous"></script>
 </head>
-<body class="min-h-full bg-surface-950 text-slate-100 antialiased font-sans flex flex-col">
+<body class="min-h-screen bg-surface-950 text-slate-100 antialiased font-sans flex flex-col">
     <!-- Mobile Header / Top Bar -->
     {% include "components/mobile_header.html" %}
 
@@ -19,12 +19,12 @@
     {% include "components/toast.html" %}
 
     <!-- Main Responsive Layout Wrapper -->
-    <div class="flex min-h-screen">
+    <div class="flex flex-1 min-h-screen w-full">
         <!-- Desktop Sidebar -->
         {% include "components/sidebar.html" %}
 
         <!-- Content Area with Bottom Padding for Mobile Nav -->
-        <main class="min-w-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-10 lg:py-10 pb-24 sm:pb-12">
+        <main class="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-10 pb-24 sm:pb-12">
             {% block content %}{% endblock %}
         </main>
     </div>
