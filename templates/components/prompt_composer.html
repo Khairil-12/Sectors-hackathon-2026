@@ -31,7 +31,7 @@
         <div class="space-y-3 text-sm">
             <div class="flex items-center gap-3 text-slate-300" id="step1">
                 <div class="h-2 w-2 rounded-full bg-brand-500 animate-ping"></div>
-                <span>1. Parsing inquiry intent and extracting target IDX tickers</span>
+                <span>1. Parsing inquiry intent and validating IDX domain scope</span>
             </div>
             <div class="flex items-center gap-3 text-slate-500" id="step2">
                 <div class="h-2 w-2 rounded-full bg-slate-700"></div>
@@ -43,11 +43,25 @@
             </div>
         </div>
     </div>
+
+    <!-- Inline Guardrail / Out of Scope Alert -->
+    <div id="guardAlert" class="hidden mt-5 rounded-lg border border-amber-900/50 bg-amber-950/20 p-4 text-sm">
+        <div class="flex items-start gap-3">
+            <div class="mt-0.5 h-2 w-2 rounded-full bg-amber-500 flex-shrink-0"></div>
+            <div class="space-y-2 flex-1">
+                <div class="font-medium text-amber-300" id="guardTitle">Lingkup Riset Saham IDX</div>
+                <p class="text-slate-300 text-xs leading-relaxed" id="guardMessage"></p>
+                <div class="pt-2">
+                    <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block mb-1.5">Rekomendasi Pertanyaan:</span>
+                    <div class="flex flex-wrap gap-1.5" id="guardSuggestions"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
 (() => {
-    const buttons = document.querySelectorAll('[data-prompt]');
     const textarea = document.getElementById('promptInput');
     const analyzeBtn = document.getElementById('analyzeBtn');
     const form = document.getElementById('promptForm');
@@ -56,13 +70,21 @@
     const step2 = document.getElementById('step2');
     const step3 = document.getElementById('step3');
     const stepTimer = document.getElementById('stepTimer');
+    const guardAlert = document.getElementById('guardAlert');
+    const guardMessage = document.getElementById('guardMessage');
+    const guardSuggestions = document.getElementById('guardSuggestions');
 
-    buttons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            textarea.value = btn.dataset.prompt;
-            textarea.focus();
+    const bindChips = (container) => {
+        container.querySelectorAll('[data-prompt]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                textarea.value = btn.dataset.prompt;
+                textarea.focus();
+                guardAlert.classList.add('hidden');
+            });
         });
-    });
+    };
+
+    bindChips(document);
 
     textarea.addEventListener('keydown', (e) => {
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
@@ -71,15 +93,23 @@
         }
     });
 
+    textarea.addEventListener('input', () => {
+        if (!guardAlert.classList.contains('hidden')) {
+            guardAlert.classList.add('hidden');
+        }
+    });
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const prompt = textarea.value.trim();
 
         if (prompt.length < 3) {
-            alert('Pertanyaan harus berisi minimal 3 karakter.');
+            guardAlert.classList.remove('hidden');
+            guardMessage.textContent = 'Pertanyaan harus berisi minimal 3 karakter.';
             return;
         }
 
+        guardAlert.classList.add('hidden');
         analyzeBtn.disabled = true;
         analyzeBtn.textContent = 'Analyzing...';
         stepper.classList.remove('hidden');
@@ -115,20 +145,40 @@
 
             if (data.redirect) {
                 window.location.href = data.redirect;
-            } else if (data.error) {
-                alert(data.error);
+            } else if (data.is_out_of_scope || data.error) {
                 stepper.classList.add('hidden');
                 analyzeBtn.disabled = false;
                 analyzeBtn.textContent = 'Analyze Request';
+
+                guardAlert.classList.remove('hidden');
+                guardMessage.textContent = data.error || 'Pertanyaan tidak dapat diproses.';
+                guardSuggestions.innerHTML = '';
+
+                const suggestions = data.suggestions || [
+                    'Analisis fundamental BBCA',
+                    'Bandingkan BMRI dan BBRI 30 hari',
+                    'Screening saham perbankan undervalue'
+                ];
+
+                suggestions.forEach(item => {
+                    const chip = document.createElement('button');
+                    chip.type = 'button';
+                    chip.className = 'rounded-full border border-amber-800/60 bg-amber-950/40 px-2.5 py-1 text-xs text-amber-200 hover:border-amber-500 hover:text-white transition-colors';
+                    chip.dataset.prompt = item;
+                    chip.textContent = item;
+                    guardSuggestions.appendChild(chip);
+                });
+                bindChips(guardSuggestions);
             } else if (data.reportId) {
                 window.location.href = `/report/${data.reportId}/`;
             }
         } catch (err) {
             clearInterval(timerInterval);
-            alert('Terjadi kesalahan saat memproses permintaan. Silakan coba kembali.');
             stepper.classList.add('hidden');
             analyzeBtn.disabled = false;
             analyzeBtn.textContent = 'Analyze Request';
+            guardAlert.classList.remove('hidden');
+            guardMessage.textContent = 'Terjadi kesalahan saat memproses permintaan. Silakan coba kembali.';
         }
     });
 })();

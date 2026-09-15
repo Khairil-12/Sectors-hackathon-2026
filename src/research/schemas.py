@@ -3,8 +3,10 @@ INTENT_PARSER_SCHEMA = {
     "properties": {
         "analysis_type": {
             "type": "string",
-            "enum": ["single_stock", "comparison", "screener", "broker_flow", "macro_sector", "news_filings"],
+            "enum": ["single_stock", "comparison", "screener", "broker_flow", "macro_sector", "news_filings", "out_of_scope"],
         },
+        "is_valid_query": {"type": "boolean"},
+        "rejection_reason": {"type": "string"},
         "symbols": {
             "type": "array",
             "items": {"type": "string"},

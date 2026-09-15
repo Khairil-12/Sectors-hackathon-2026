@@ -47,8 +47,6 @@ def _symbols(intent: dict) -> list[str]:
             continue
         if symbol not in values:
             values.append(symbol)
-    if not values:
-        values = ["BBCA"]
     return values[:4]
 
 
@@ -60,8 +58,38 @@ def _error_payload(error: Exception) -> dict:
 
 def run_analysis(user_prompt: str) -> dict[str, Any]:
     intent = parse_user_intent(user_prompt)
-    dates = _safe_dates(intent)
+
+    # Short-circuit out-of-scope or non-financial inquiries
+    if intent.get("analysis_type") == "out_of_scope" or intent.get("is_valid_query") is False:
+        return {
+            "is_out_of_scope": True,
+            "intent": intent,
+            "message": intent.get("rejection_reason") or "Pertanyaan di luar lingkup riset saham dan pasar modal IDX.",
+            "suggestions": [
+                "Analisis fundamental BBCA",
+                "Bandingkan BMRI dan BBRI 30 hari",
+                "Screening saham perbankan undervalue",
+                "Bagaimana foreign flow TLKM minggu ini?",
+            ],
+        }
+
     symbols = _symbols(intent)
+    analysis_type = intent.get("analysis_type", "single_stock")
+
+    if not symbols and analysis_type not in ("screener", "macro_sector"):
+        return {
+            "is_out_of_scope": True,
+            "intent": intent,
+            "message": "Mohon sebutkan minimal satu kode saham IDX (contoh: BBCA, BMRI, TLKM, ASII).",
+            "suggestions": [
+                "Analisis fundamental BBCA",
+                "Bandingkan BMRI dan BBRI 30 hari",
+                "Screening saham perbankan undervalue",
+                "Bagaimana foreign flow TLKM minggu ini?",
+            ],
+        }
+
+    dates = _safe_dates(intent)
     endpoints = set(intent.get("required_endpoints", []))
     if not endpoints:
         endpoints = {"company_report", "daily_transaction", "foreign_flow", "broker_summary_top"}
