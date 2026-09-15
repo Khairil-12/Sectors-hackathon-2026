@@ -1,0 +1,47 @@
+<!-- Flowbite Floating Toast Notification -->
+<div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-xs w-full pointer-events-none">
+    <div id="toast-success" class="hidden pointer-events-auto flex items-center w-full p-4 text-slate-200 bg-surface-900 rounded-xl border border-slate-700 shadow-xl" role="alert">
+        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-emerald-400 bg-emerald-950/80 rounded-lg border border-emerald-800">
+            <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 12">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5.917 5.724 10.5 15 1.5"/>
+            </svg>
+            <span class="sr-only">Check icon</span>
+        </div>
+        <div class="ml-3 text-sm font-medium" id="toast-success-message">Action completed successfully.</div>
+        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-surface-900 text-slate-400 hover:text-white rounded-lg p-1.5 inline-flex items-center justify-center h-8 w-8 hover:bg-surface-800" onclick="document.getElementById('toast-success').classList.add('hidden')">
+            <span class="sr-only">Close</span>
+            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+            </svg>
+        </button>
+    </div>
+
+    <div id="toast-danger" class="hidden pointer-events-auto flex items-center w-full p-4 text-slate-200 bg-surface-900 rounded-xl border border-red-900 shadow-xl" role="alert">
+        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-red-400 bg-red-950/80 rounded-lg border border-red-800">
+            <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+            </svg>
+            <span class="sr-only">Error icon</span>
+        </div>
+        <div class="ml-3 text-sm font-medium" id="toast-danger-message">Operation failed.</div>
+        <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-surface-900 text-slate-400 hover:text-white rounded-lg p-1.5 inline-flex items-center justify-center h-8 w-8 hover:bg-surface-800" onclick="document.getElementById('toast-danger').classList.add('hidden')">
+            <span class="sr-only">Close</span>
+            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+            </svg>
+        </button>
+    </div>
+</div>
+
+<script>
+window.showToast = function(message, type = 'success') {
+    const toast = type === 'success' ? document.getElementById('toast-success') : document.getElementById('toast-danger');
+    const msgEl = type === 'success' ? document.getElementById('toast-success-message') : document.getElementById('toast-danger-message');
+    if (!toast || !msgEl) return;
+    msgEl.textContent = message;
+    toast.classList.remove('hidden');
+    setTimeout(() => {
+        toast.classList.add('hidden');
+    }, 3500);
+};
+</script>

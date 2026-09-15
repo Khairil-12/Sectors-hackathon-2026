@@ -1,21 +1,40 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-surface-950">
+<html lang="id" class="dark h-full bg-surface-950">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}IDX Copilot{% endblock %}</title>
+    <title>{% block title %}IDX Copilot - AI Equity Research{% endblock %}</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'dist/app.css' %}">
     <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmReVU07Z0CYxN50GQXYNX45P4/fhy/epMvxyBi" crossorigin="anonymous"></script>
 </head>
-<body class="min-h-full bg-surface-950 text-gray-100 antialiased">
+<body class="min-h-full bg-surface-950 text-slate-100 antialiased font-sans flex flex-col">
+    <!-- Mobile Header / Top Bar -->
     {% include "components/mobile_header.html" %}
+
+    <!-- Mobile Off-Canvas Drawer (Flowbite) -->
+    {% include "components/mobile_drawer.html" %}
+
+    <!-- Global Toast Container -->
+    {% include "components/toast.html" %}
+
+    <!-- Main Responsive Layout Wrapper -->
     <div class="flex min-h-screen">
+        <!-- Desktop Sidebar -->
         {% include "components/sidebar.html" %}
-        <main class="min-w-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+
+        <!-- Content Area with Bottom Padding for Mobile Nav -->
+        <main class="min-w-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-10 lg:py-10 pb-24 sm:pb-12">
             {% block content %}{% endblock %}
         </main>
     </div>
+
+    <!-- Mobile Bottom Quick Navigation (Flowbite) -->
+    {% include "components/bottom_nav.html" %}
+
+    <!-- Flowbite JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+
     {% block scripts %}{% endblock %}
 </body>
 </html>

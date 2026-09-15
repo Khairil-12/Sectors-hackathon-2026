@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "flowbite/plugin";
 
 @theme {
   --color-brand-500: #3b82f6;
@@ -8,6 +9,7 @@
   --shadow-panel: 0 10px 30px rgba(2, 6, 23, 0.25);
 }
 
+@source "../../node_modules/flowbite";
 @source "../../templates/**/*.html";
 @source "../../src/research/templates/**/*.html";
 @source "../**/*.js";

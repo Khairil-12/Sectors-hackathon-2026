@@ -1,55 +1,82 @@
-<div class="rounded-xl border border-slate-800 bg-surface-900 p-5 shadow-panel">
+<!-- Flowbite Prompt Composer Component -->
+<div class="rounded-xl border border-slate-800 bg-surface-900 p-5 sm:p-6 shadow-panel">
     <form method="POST" action="{% url 'research:workspace' %}" class="relative" id="promptForm">
         {% csrf_token %}
-        <label for="promptInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Ask Copilot</label>
-        <textarea name="prompt" id="promptInput" rows="3" class="w-full rounded-lg border border-slate-700 bg-surface-950 px-4 py-3 text-white placeholder-slate-500 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors"
-            placeholder="Contoh: Bandingkan valuasi dan foreign flow BBCA dan BMRI dalam 30 hari terakhir..."></textarea>
+        <div class="flex items-center justify-between mb-2">
+            <label for="promptInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-400">Ask Copilot</label>
+            <span class="hidden sm:inline-flex items-center gap-1.5 text-xs text-slate-400">
+                <span>Press</span>
+                <kbd class="px-1.5 py-0.5 text-[10px] font-semibold text-slate-300 bg-surface-800 border border-slate-700 rounded">Ctrl</kbd>
+                <span>+</span>
+                <kbd class="px-1.5 py-0.5 text-[10px] font-semibold text-slate-300 bg-surface-800 border border-slate-700 rounded">Enter</kbd>
+                <span>to analyze</span>
+            </span>
+        </div>
+
+        <div class="relative">
+            <textarea name="prompt" id="promptInput" rows="3" class="block p-3.5 w-full text-sm text-white bg-surface-950 rounded-lg border border-slate-700 focus:ring-brand-500 focus:border-brand-500 placeholder-slate-500 transition-colors"
+                placeholder="Contoh: Bandingkan valuasi dan foreign flow BBCA dan BMRI dalam 30 hari terakhir..."></textarea>
+        </div>
         
         <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <div class="flex flex-wrap gap-2 text-xs">
-                <button type="button" class="rounded-full border border-slate-700 bg-surface-950 px-3 py-1.5 text-slate-300 hover:border-brand-500 hover:text-white transition-colors" data-prompt="Analisis fundamental dan valuasi BBCA">Analisis BBCA</button>
-                <button type="button" class="rounded-full border border-slate-700 bg-surface-950 px-3 py-1.5 text-slate-300 hover:border-brand-500 hover:text-white transition-colors" data-prompt="Bandingkan performa BBCA dan BMRI 30 hari terakhir">Bandingkan BBCA vs BMRI</button>
-                <button type="button" class="rounded-full border border-slate-700 bg-surface-950 px-3 py-1.5 text-slate-300 hover:border-brand-500 hover:text-white transition-colors" data-prompt="Cek tren foreign flow dan broker akumulasi TLKM">Foreign Flow TLKM</button>
-                <button type="button" class="rounded-full border border-slate-700 bg-surface-950 px-3 py-1.5 text-slate-300 hover:border-brand-500 hover:text-white transition-colors" data-prompt="Screening saham perbankan IDX yang undervalued dengan dividend yield tinggi">Screen Perbankan Value</button>
+            <div class="flex flex-wrap items-center gap-1.5 text-xs">
+                <span class="text-slate-500 text-[11px] mr-1 hidden sm:inline">Templates:</span>
+                <button type="button" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors" data-prompt="Analisis fundamental dan valuasi BBCA">BBCA Fundamental</button>
+                <button type="button" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors" data-prompt="Bandingkan performa BBCA dan BMRI 30 hari terakhir">BBCA vs BMRI</button>
+                <button type="button" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors" data-prompt="Cek tren foreign flow dan broker akumulasi TLKM">Foreign Flow TLKM</button>
+                <button type="button" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors" data-prompt="Screening saham perbankan IDX yang undervalued dengan dividend yield tinggi">Screen Perbankan Value</button>
             </div>
             
-            <div class="flex items-center gap-3">
-                <span class="hidden text-xs text-slate-500 sm:inline">Tekan Ctrl+Enter untuk kirim</span>
-                <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all" id="analyzeBtn">
-                    Analyze Request
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all gap-2" id="analyzeBtn">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span>Analyze Request</span>
                 </button>
             </div>
         </div>
     </form>
 
-    <!-- Interactive Progress Stepper -->
-    <div id="loadingStepper" class="hidden mt-6 rounded-lg border border-brand-900/60 bg-brand-950/30 p-5">
+    <!-- Interactive Flowbite Progress Stepper -->
+    <div id="loadingStepper" class="hidden mt-6 rounded-xl border border-brand-900/60 bg-brand-950/30 p-5">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-sm font-semibold text-brand-400">Processing Research Request</h3>
-            <span class="text-xs text-slate-400" id="stepTimer">Elapsed: 0s</span>
+            <div class="flex items-center gap-2">
+                <div role="status">
+                    <svg aria-hidden="true" class="w-4 h-4 text-slate-700 animate-spin fill-brand-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                        <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                    </svg>
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <h3 class="text-sm font-semibold text-brand-400">Processing Research Request</h3>
+            </div>
+            <span class="text-xs text-slate-400 font-mono" id="stepTimer">Elapsed: 0s</span>
         </div>
-        <div class="space-y-3 text-sm">
-            <div class="flex items-center gap-3 text-slate-300" id="step1">
-                <div class="h-2 w-2 rounded-full bg-brand-500 animate-ping"></div>
-                <span>1. Parsing inquiry intent and validating IDX domain scope</span>
-            </div>
-            <div class="flex items-center gap-3 text-slate-500" id="step2">
-                <div class="h-2 w-2 rounded-full bg-slate-700"></div>
-                <span>2. Fetching real-time market metrics from Sectors Financial API</span>
-            </div>
-            <div class="flex items-center gap-3 text-slate-500" id="step3">
-                <div class="h-2 w-2 rounded-full bg-slate-700"></div>
-                <span>3. Synthesizing fundamental valuation and flow momentum thesis</span>
-            </div>
-        </div>
+        <ol class="relative text-slate-400 border-l border-slate-800 ml-3 space-y-4 text-xs sm:text-sm">
+            <li class="ml-6 text-slate-300" id="step1">
+                <span class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-brand-900 rounded-full ring-4 ring-surface-900 text-brand-400 text-xs">1</span>
+                <span class="font-medium">Parsing inquiry intent and validating IDX domain scope</span>
+            </li>
+            <li class="ml-6 text-slate-500" id="step2">
+                <span class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-surface-800 rounded-full ring-4 ring-surface-900 text-slate-400 text-xs">2</span>
+                <span class="font-medium">Fetching real-time market metrics from Sectors Financial API</span>
+            </li>
+            <li class="ml-6 text-slate-500" id="step3">
+                <span class="absolute -left-3 flex items-center justify-center w-6 h-6 bg-surface-800 rounded-full ring-4 ring-surface-900 text-slate-400 text-xs">3</span>
+                <span class="font-medium">Synthesizing fundamental valuation and flow momentum thesis</span>
+            </li>
+        </ol>
     </div>
 
-    <!-- Inline Guardrail / Out of Scope Alert -->
-    <div id="guardAlert" class="hidden mt-5 rounded-lg border border-amber-900/50 bg-amber-950/20 p-4 text-sm">
+    <!-- Inline Flowbite Guardrail / Out of Scope Alert -->
+    <div id="guardAlert" class="hidden mt-5 p-4 mb-4 text-sm rounded-xl bg-amber-950/30 border border-amber-900/60" role="alert">
         <div class="flex items-start gap-3">
-            <div class="mt-0.5 h-2 w-2 rounded-full bg-amber-500 flex-shrink-0"></div>
+            <svg class="flex-shrink-0 inline w-5 h-5 mt-0.5 text-amber-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+            </svg>
             <div class="space-y-2 flex-1">
-                <div class="font-medium text-amber-300" id="guardTitle">Lingkup Riset Saham IDX</div>
+                <div class="font-semibold text-amber-300" id="guardTitle">Lingkup Riset Saham IDX</div>
                 <p class="text-slate-300 text-xs leading-relaxed" id="guardMessage"></p>
                 <div class="pt-2">
                     <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block mb-1.5">Rekomendasi Pertanyaan:</span>
@@ -111,7 +138,13 @@
 
         guardAlert.classList.add('hidden');
         analyzeBtn.disabled = true;
-        analyzeBtn.textContent = 'Analyzing...';
+        analyzeBtn.innerHTML = `
+            <svg aria-hidden="true" class="w-4 h-4 text-slate-400 animate-spin fill-white" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+            </svg>
+            <span>Analyzing...</span>
+        `;
         stepper.classList.remove('hidden');
 
         let seconds = 0;
@@ -121,11 +154,17 @@
             if (seconds === 2) {
                 step2.classList.remove('text-slate-500');
                 step2.classList.add('text-slate-300');
-                step2.firstElementChild.className = 'h-2 w-2 rounded-full bg-brand-500 animate-ping';
+                const badge = step2.querySelector('span:first-child');
+                if (badge) {
+                    badge.className = 'absolute -left-3 flex items-center justify-center w-6 h-6 bg-brand-900 rounded-full ring-4 ring-surface-900 text-brand-400 text-xs';
+                }
             } else if (seconds === 4) {
                 step3.classList.remove('text-slate-500');
                 step3.classList.add('text-slate-300');
-                step3.firstElementChild.className = 'h-2 w-2 rounded-full bg-brand-500 animate-ping';
+                const badge = step3.querySelector('span:first-child');
+                if (badge) {
+                    badge.className = 'absolute -left-3 flex items-center justify-center w-6 h-6 bg-brand-900 rounded-full ring-4 ring-surface-900 text-brand-400 text-xs';
+                }
             }
         }, 1000);
 
@@ -148,7 +187,12 @@
             } else if (data.is_out_of_scope || data.error) {
                 stepper.classList.add('hidden');
                 analyzeBtn.disabled = false;
-                analyzeBtn.textContent = 'Analyze Request';
+                analyzeBtn.innerHTML = `
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    <span>Analyze Request</span>
+                `;
 
                 guardAlert.classList.remove('hidden');
                 guardMessage.textContent = data.error || 'Pertanyaan tidak dapat diproses.';
@@ -176,7 +220,12 @@
             clearInterval(timerInterval);
             stepper.classList.add('hidden');
             analyzeBtn.disabled = false;
-            analyzeBtn.textContent = 'Analyze Request';
+            analyzeBtn.innerHTML = `
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                <span>Analyze Request</span>
+            `;
             guardAlert.classList.remove('hidden');
             guardMessage.textContent = 'Terjadi kesalahan saat memproses permintaan. Silakan coba kembali.';
         }

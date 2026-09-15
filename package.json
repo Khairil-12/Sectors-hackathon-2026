@@ -12,5 +12,8 @@
     "@tailwindcss/cli": "^4.1.4",
     "concurrently": "^10.0.5",
     "tailwindcss": "^4.1.4"
+  },
+  "dependencies": {
+    "flowbite": "^4.0.2"
   }
 }

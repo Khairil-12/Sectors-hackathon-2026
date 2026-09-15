@@ -1,6 +1,18 @@
-<nav class="flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6">
-  <div class="flex flex-1 justify-between sm:justify-end gap-2">
-    <a href="#" class="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Previous</a>
-    <a href="#" class="relative inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50">Next</a>
-  </div>
+<!-- Flowbite Responsive Pagination Component -->
+<nav class="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-800 pt-4 px-2" aria-label="Table navigation">
+  <span class="text-xs font-normal text-slate-400">
+    Showing <span class="font-semibold text-white">{{ current_page|default:"1" }}</span> of <span class="font-semibold text-white">{{ total_pages|default:"1" }}</span> pages
+  </span>
+  <ul class="inline-flex -space-x-px text-xs h-8">
+    <li>
+      <a href="{% if prev_url %}{{ prev_url }}{% else %}#{% endif %}" class="flex items-center justify-center px-3 h-8 ml-0 leading-tight text-slate-400 bg-surface-900 border border-slate-800 rounded-l-lg hover:bg-surface-800 hover:text-white {% if not prev_url %}opacity-50 cursor-not-allowed pointer-events-none{% endif %}">
+        Previous
+      </a>
+    </li>
+    <li>
+      <a href="{% if next_url %}{{ next_url }}{% else %}#{% endif %}" class="flex items-center justify-center px-3 h-8 leading-tight text-slate-400 bg-surface-900 border border-slate-800 rounded-r-lg hover:bg-surface-800 hover:text-white {% if not next_url %}opacity-50 cursor-not-allowed pointer-events-none{% endif %}">
+        Next
+      </a>
+    </li>
+  </ul>
 </nav>
