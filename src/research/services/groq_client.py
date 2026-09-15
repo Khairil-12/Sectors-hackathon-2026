@@ -10,6 +10,7 @@ from django.conf import settings
 from openai import APIError, APITimeoutError, OpenAI
 
 from research.schemas import COPILOT_REPORT_SCHEMA, INTENT_PARSER_SCHEMA
+from research.services.data_distiller import distill_context
 
 import os
 
@@ -30,7 +31,14 @@ def _client() -> OpenAI:
     return OpenAI(api_key=api_key, base_url=base_url, timeout=10, max_retries=0)
 
 
-def _call_groq_json(model: str, instructions: str, input_text: str, schema: dict[str, Any]) -> dict[str, Any]:
+def _call_groq_json(
+    model: str,
+    instructions: str,
+    input_text: str,
+    schema: dict[str, Any],
+    max_tokens: int = 2048,
+    temperature: float = 0.1,
+) -> dict[str, Any]:
     api_key = getattr(settings, "GROQ_API_KEY", "")
     if not api_key or api_key == "your_groq_api_key_here" or api_key == "dummy_key":
         raise GroqAPIError("GROQ_API_KEY is not configured.")
@@ -38,11 +46,13 @@ def _call_groq_json(model: str, instructions: str, input_text: str, schema: dict
     if len(input_text) > 80_000:
         raise GroqAPIError("Analysis context exceeds maximum token budget.")
 
+    # Minify schema JSON to save input tokens
+    compact_schema = json.dumps(schema, separators=(",", ":"))
     system_prompt = (
         f"{instructions}\n\n"
-        f"CRITICAL: You MUST respond ONLY with valid JSON conforming to this schema:\n"
-        f"{json.dumps(schema, indent=2)}\n"
-        f"Do not include markdown code block backticks, preamble, or explanation outside the JSON."
+        f"CRITICAL: Respond ONLY with valid JSON conforming to this schema:\n"
+        f"{compact_schema}\n"
+        f"No markdown backticks, no preamble."
     )
 
     try:
@@ -54,9 +64,17 @@ def _call_groq_json(model: str, instructions: str, input_text: str, schema: dict
                 {"role": "user", "content": input_text},
             ],
             response_format={"type": "json_object"},
-            temperature=0.1,
-            max_tokens=4096,
+            temperature=temperature,
+            max_tokens=max_tokens,
         )
+        if hasattr(response, "usage") and response.usage:
+            logger.info(
+                "Groq model %s usage: prompt_tokens=%s, completion_tokens=%s, total_tokens=%s",
+                model,
+                response.usage.prompt_tokens,
+                response.usage.completion_tokens,
+                response.usage.total_tokens,
+            )
         content = response.choices[0].message.content or "{}"
         payload = json.loads(content)
     except (APIError, APITimeoutError) as exc:
@@ -181,9 +199,11 @@ def parse_user_intent(user_prompt: str) -> dict[str, Any]:
     try:
         return _call_groq_json(
             model=FAST_MODEL,
-            instructions="You are an expert IDX Intent Parser. Extract IDX stock tickers (4 capital letters, e.g. BBCA, BMRI), date range (ISO YYYY-MM-DD), analysis mode, and required endpoints.",
-            input_text=user_prompt,
+            instructions="You are an expert IDX Intent Parser. Extract tickers, dates, analysis mode and required endpoints. Return valid JSON object.",
+            input_text=user_prompt.strip(),
             schema=INTENT_PARSER_SCHEMA,
+            max_tokens=512,
+            temperature=0.1,
         )
     except GroqAPIError as exc:
         logger.info("Using fallback intent parser: %s", exc)
@@ -191,18 +211,21 @@ def parse_user_intent(user_prompt: str) -> dict[str, Any]:
 
 
 def generate_copilot_report(user_prompt: str, context_data: dict[str, Any]) -> dict[str, Any]:
-    input_text = f"User Request: {user_prompt}\n\nIDX Market Context Data:\n{json.dumps(context_data, default=str)}"
+    distilled = distill_context(context_data)
+    compact_json = json.dumps(distilled, separators=(",", ":"), default=str)
+    input_text = f"User Request: {user_prompt.strip()}\n\nIDX Context Data:\n{compact_json}"
     try:
         report = _call_groq_json(
             model=PRIMARY_MODEL,
             instructions=(
-                "You are an expert equity research analyst for the Indonesia Stock Exchange (IDX). "
-                "Synthesize the provided structured market data into a thorough, objective equity research report. "
-                "Adhere strictly to provided numbers without hallucination. "
-                "Include balanced bullish drivers, bearish risks, precise data citations, and the Indonesian regulatory disclaimer."
+                "Expert IDX equity research analyst. Synthesize the provided distilled market data "
+                "into an objective research report. Adhere strictly to provided numbers without hallucination. "
+                "Include balanced bullish drivers, bearish risks, precise data citations, and the regulatory disclaimer."
             ),
             input_text=input_text,
             schema=COPILOT_REPORT_SCHEMA,
+            max_tokens=2048,
+            temperature=0.1,
         )
         report["disclaimer"] = "Bukan rekomendasi beli atau jual. Analisis dihasilkan otomatis berdasarkan data Sectors API untuk tujuan edukasi."
         return report
