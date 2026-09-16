@@ -67,7 +67,11 @@ class PromptGuardUnitTests(TestCase):
         client = Client()
         initial_reports_count = SavedReport.objects.count()
 
-        response = client.post("/", {"prompt": "apakah kamu tahu bahasa python?"})
+        response = client.post(
+            "/",
+            {"prompt": "apakah kamu tahu bahasa python?"},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
         self.assertEqual(response.status_code, 422)
         data = response.json()
         self.assertTrue(data.get("is_out_of_scope"))
@@ -75,4 +79,13 @@ class PromptGuardUnitTests(TestCase):
         self.assertTrue(len(data.get("suggestions", [])) > 0)
 
         # Ensure no spurious SavedReport was created
+        self.assertEqual(SavedReport.objects.count(), initial_reports_count)
+
+    def test_workspace_view_standard_form_out_of_scope_redirects(self):
+        client = Client()
+        initial_reports_count = SavedReport.objects.count()
+
+        response = client.post("/", {"prompt": "apakah kamu tahu bahasa python?"})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, "/")
         self.assertEqual(SavedReport.objects.count(), initial_reports_count)

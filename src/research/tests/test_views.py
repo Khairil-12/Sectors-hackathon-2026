@@ -79,15 +79,46 @@ class ViewRoutingTests(TestCase):
                 "disclaimer": "Bukan rekomendasi beli atau jual.",
             },
         }
-        response = self.client.post("/", {"prompt": "Bandingkan BBCA dan BMRI"})
+        response = self.client.post("/", {"prompt": "Bandingkan BBCA dan BMRI"}, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertIn("redirect", data)
         self.assertIn("reportId", data)
         self.assertTrue(SavedReport.objects.filter(pk=data["reportId"]).exists())
 
+    @patch("research.views.run_analysis")
+    def test_workspace_post_standard_form_redirects_to_report(self, mock_run_analysis):
+        mock_run_analysis.return_value = {
+            "intent": {"analysis_type": "single_stock", "symbols": ["BBCA"]},
+            "report": {
+                "title": "Equity Research: BBCA",
+                "summary": "BBCA shows solid fundamentals.",
+                "analyzed_symbols": ["BBCA"],
+                "fundamental_analysis": {
+                    "valuation_verdict": "fair",
+                    "pe_pb_commentary": "PE 23.4x",
+                    "revenue_profit_trend": "Positive",
+                },
+                "flow_and_momentum": {
+                    "foreign_flow_sentiment": "strong_inflow",
+                    "net_foreign_amount_idr": 1000000000,
+                    "top_broker_action": "Net buy",
+                    "price_trend_summary": "Upward",
+                },
+                "bullish_drivers": ["Strong ROE"],
+                "bearish_risks": ["Competition"],
+                "data_citations": [],
+                "disclaimer": "Disclaimer",
+            },
+        }
+        response = self.client.post("/", {"prompt": "Analisis komprehensif saham BBCA"})
+        self.assertEqual(response.status_code, 302)
+        saved = SavedReport.objects.filter(user_prompt="Analisis komprehensif saham BBCA").first()
+        self.assertIsNotNone(saved)
+        self.assertRedirects(response, f"/report/{saved.pk}/")
+
     def test_workspace_post_invalid_short_prompt_returns_400(self):
-        response = self.client.post("/", {"prompt": "a"})
+        response = self.client.post("/", {"prompt": "a"}, HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(response.status_code, 400)
         data = response.json()
         self.assertIn("error", data)

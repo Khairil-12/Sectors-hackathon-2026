@@ -29,30 +29,54 @@ def workspace(request):
             },
         )
 
+    is_ajax = (
+        request.headers.get("x-requested-with") == "XMLHttpRequest"
+        or request.headers.get("hx-request") == "true"
+        or "application/json" in request.headers.get("accept", "")
+    )
+
     form = PromptForm(request.POST)
     if not form.is_valid():
-        return JsonResponse({"error": form.errors["prompt"][0]}, status=400)
+        err_msg = form.errors["prompt"][0]
+        if is_ajax:
+            return JsonResponse({"error": err_msg}, status=400)
+        messages.error(request, err_msg)
+        return redirect("research:workspace")
 
     try:
         analysis = run_analysis(form.cleaned_data["prompt"])
     except (SectorsAPIError, GroqAPIError) as error:
         logger.warning("Analysis failed with upstream error: %s", error)
-        return JsonResponse({"error": str(error)}, status=503)
+        if is_ajax:
+            return JsonResponse({"error": str(error)}, status=503)
+        messages.error(request, str(error))
+        return redirect("research:workspace")
     except ValueError as error:
-        return JsonResponse({"error": str(error)}, status=400)
+        if is_ajax:
+            return JsonResponse({"error": str(error)}, status=400)
+        messages.error(request, str(error))
+        return redirect("research:workspace")
     except Exception as error:
         logger.error("Unexpected error in workspace analysis: %s", error, exc_info=True)
-        return JsonResponse({"error": "Terjadi kesalahan internal saat analisis."}, status=500)
+        err_msg = "Terjadi kesalahan internal saat analisis."
+        if is_ajax:
+            return JsonResponse({"error": err_msg}, status=500)
+        messages.error(request, err_msg)
+        return redirect("research:workspace")
 
     if analysis.get("is_out_of_scope"):
-        return JsonResponse(
-            {
-                "is_out_of_scope": True,
-                "error": analysis.get("message", "Pertanyaan di luar lingkup riset saham IDX."),
-                "suggestions": analysis.get("suggestions", []),
-            },
-            status=422,
-        )
+        err_msg = analysis.get("message", "Pertanyaan di luar lingkup riset saham IDX.")
+        if is_ajax:
+            return JsonResponse(
+                {
+                    "is_out_of_scope": True,
+                    "error": err_msg,
+                    "suggestions": analysis.get("suggestions", []),
+                },
+                status=422,
+            )
+        messages.warning(request, err_msg)
+        return redirect("research:workspace")
 
     report = analysis.get("report", {})
     saved = SavedReport.objects.create(
@@ -61,7 +85,10 @@ def workspace(request):
         user_prompt=form.cleaned_data["prompt"],
         report_data=report,
     )
-    return JsonResponse({"redirect": f"/report/{saved.pk}/", "reportId": saved.pk})
+
+    if is_ajax:
+        return JsonResponse({"redirect": f"/report/{saved.pk}/", "reportId": saved.pk})
+    return redirect("research:report_detail", id=saved.pk)
 
 
 def report_detail(request, id):
