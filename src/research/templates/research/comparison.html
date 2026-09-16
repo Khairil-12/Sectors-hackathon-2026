@@ -27,7 +27,14 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </div>
-                        <input type="text" name="symbols" id="symbolsInput" value="{{ symbols_param }}" placeholder="Up to 10 tickers, e.g. BBCA, BMRI, BBRI, BBNI" class="uppercase block w-full pl-10 pr-4 py-2.5 text-sm text-white bg-surface-950 rounded-lg border border-slate-700 focus:ring-brand-500 focus:border-brand-500 placeholder-slate-500 transition-colors">
+                        <input type="text" name="symbols" id="symbolsInput" value="{{ symbols_param }}" placeholder="Up to 10 tickers, e.g. BBCA, BMRI, BBRI, BBNI" class="uppercase block w-full pl-10 pr-10 py-2.5 text-sm text-white bg-surface-950 rounded-lg border border-slate-700 focus:ring-brand-500 focus:border-brand-500 placeholder-slate-500 transition-colors">
+                        <a href="{% url 'research:comparison' %}" id="resetBtn" title="Reset symbols" aria-label="Reset symbols comparison" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white transition-colors {% if not symbols_param %}hidden{% endif %}">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-surface-800 text-slate-400 hover:text-white transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </span>
+                        </a>
                     </div>
                     <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,10 +54,6 @@
                 <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="mining">Mining Sector</button>
                 <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="real-estate">Real Estate</button>
                 <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="manufacturing">Manufacturing</button>
-                <button type="button" id="resetBtn" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-400 hover:border-red-500 hover:text-red-400 transition-colors">
-                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    Reset
-                </button>
                 <a href="{% url 'research:comparison' %}?symbols=BBCA,BMRI,BBRI,BBNI,TLKM,ASII,ICBP,INDF,UNTR,ANTM" class="inline-flex items-center rounded-full border border-brand-800 bg-brand-950/40 px-3 py-1 text-brand-300 hover:border-brand-500 hover:text-white transition-colors">Top 10 IDX Blue Chips</a>
             </div>
         </form>
@@ -191,11 +194,20 @@
 
     const updatePresetStates = () => {
         const input = document.getElementById('symbolsInput');
+        const resetBtn = document.getElementById('resetBtn');
         const currentSymbols = input.value
             .split(',')
             .map(s => s.trim().toUpperCase())
             .filter(Boolean);
         const currentSet = new Set(currentSymbols);
+
+        if (resetBtn) {
+            if (input.value.trim().length > 0) {
+                resetBtn.classList.remove('hidden');
+            } else if (!window.location.search) {
+                resetBtn.classList.add('hidden');
+            }
+        }
 
         document.querySelectorAll('.preset-btn').forEach((btn) => {
             const preset = btn.dataset.preset;
@@ -228,13 +240,18 @@
 
     document.getElementById('symbolsInput').addEventListener('input', updatePresetStates);
 
-    document.getElementById('resetBtn').addEventListener('click', (e) => {
-        e.preventDefault();
-        const input = document.getElementById('symbolsInput');
-        input.value = '';
-        input.focus();
-        updatePresetStates();
-    });
+    const resetBtn = document.getElementById('resetBtn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', (e) => {
+            const input = document.getElementById('symbolsInput');
+            if (!window.location.search && input.value.trim().length > 0) {
+                e.preventDefault();
+                input.value = '';
+                input.focus();
+                updatePresetStates();
+            }
+        });
+    }
 
     document.querySelectorAll('.stock-recommendation').forEach((button) => {
         button.addEventListener('click', () => {
