@@ -28,7 +28,14 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </div>
-                        <input type="text" name="query" id="screenerQuery" value="{{ query }}" placeholder="Contoh: Perusahaan perbankan dengan ROE diatas 15% dan valuasi wajar..." class="block w-full pl-10 pr-4 py-2.5 text-sm text-white bg-surface-950 rounded-lg border border-slate-700 focus:ring-brand-500 focus:border-brand-500 placeholder-slate-500 transition-colors">
+                        <input type="text" name="query" id="screenerQuery" value="{{ query }}" placeholder="Contoh: Perusahaan perbankan dengan ROE diatas 15% dan valuasi wajar..." class="block w-full pl-10 pr-10 py-2.5 text-sm text-white bg-surface-950 rounded-lg border border-slate-700 focus:ring-brand-500 focus:border-brand-500 placeholder-slate-500 transition-colors">
+                        <a href="{% url 'research:screener' %}" id="clearScreenerBtn" title="Reset filter" aria-label="Reset screening criteria" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white transition-colors {% if not query and not preset %}hidden{% endif %}">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-surface-800 text-slate-400 hover:text-white transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </span>
+                        </a>
                     </div>
                     <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,9 +52,6 @@
                 <a href="{% url 'research:screener' %}?preset=banks" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors {% if preset == 'banks' %}border-brand-500 text-brand-400 bg-brand-950/40{% endif %}">Top Banks</a>
                 <a href="{% url 'research:screener' %}?preset=dividends" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors {% if preset == 'dividends' %}border-brand-500 text-brand-400 bg-brand-950/40{% endif %}">High Dividend Yield</a>
                 <a href="{% url 'research:screener' %}?preset=value" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors {% if preset == 'value' %}border-brand-500 text-brand-400 bg-brand-950/40{% endif %}">Undervalued Opportunities</a>
-                {% if preset or query %}
-                    <a href="{% url 'research:screener' %}" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-400 hover:text-white transition-colors">Reset All</a>
-                {% endif %}
             </div>
         </form>
     </div>
@@ -137,4 +141,30 @@
         {% endif %}
     </div>
 </section>
+
+<script>
+(() => {
+    const input = document.getElementById('screenerQuery');
+    const clearBtn = document.getElementById('clearScreenerBtn');
+    if (!input || !clearBtn) return;
+
+    input.addEventListener('input', () => {
+        if (input.value.trim().length > 0) {
+            clearBtn.classList.remove('hidden');
+        } else if (!window.location.search.includes('preset=')) {
+            clearBtn.classList.add('hidden');
+        }
+    });
+
+    clearBtn.addEventListener('click', (e) => {
+        const hasPreset = window.location.search.includes('preset=');
+        if (!hasPreset && input.value.trim().length > 0 && !window.location.search) {
+            e.preventDefault();
+            input.value = '';
+            clearBtn.classList.add('hidden');
+            input.focus();
+        }
+    });
+})();
+</script>
 {% endblock %}
