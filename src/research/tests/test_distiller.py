@@ -48,6 +48,62 @@ class DataDistillerTests(TestCase):
         self.assertEqual(res["roe"], 0.21)
         self.assertNotIn("extra_metadata_unneeded", res)
 
+    def test_distill_company_report_compact_arrays(self):
+        raw = {
+            "overview": {
+                "symbol": "BMRI.JK",
+                "company_name": "Bank Mandiri Tbk",
+                "industry": "Financials",
+                "sub_sector": "Banks",
+                "last_close_price": 6850,
+            },
+            "valuation": {
+                "pe_ratio": 11.5,
+                "historical_valuation": [
+                    {"year": 2026 - i, "pe_ratio": 11.0 + i, "pb_ratio": 2.0}
+                    for i in range(10)
+                ],
+            },
+            "financials": {
+                "historical_financials": [
+                    {"year": 2026 - i, "quarter": "FY", "revenue": 1000 + i, "net_income": 200, "eps": 50, "raw_extra": "blob" * 50}
+                    for i in range(10)
+                ],
+            },
+            "dividend": {
+                "historical_dividends": [
+                    {"year": 2026 - i, "dps": 100 + i, "yield": 0.05}
+                    for i in range(15)
+                ],
+            },
+            "ownership": {
+                "major_shareholders": [
+                    {"name": f"Shareholder {i}", "percentage": 0.1 * i}
+                    for i in range(8)
+                ],
+                "whale_investors": [{"name": "Whale"} for _ in range(5)],
+            },
+            "management": {
+                "key_executives": [
+                    {"name": f"Director {i}", "title": "Director"}
+                    for i in range(10)
+                ],
+            },
+            "peers": [
+                {"symbol": f"PEER{i}", "pe_ratio": 10 + i, "pb_ratio": 1.5}
+                for i in range(10)
+            ],
+        }
+        res = distill_company_report(raw)
+        self.assertEqual(len(res["historical_financials_recent"]), 3)
+        self.assertEqual(len(res["historical_dividends_recent"]), 3)
+        self.assertEqual(len(res["historical_valuation_recent"]), 3)
+        self.assertEqual(len(res["major_shareholders"]), 3)
+        self.assertEqual(len(res["key_executives"]), 3)
+        self.assertEqual(len(res["peer_benchmarks"]), 3)
+        self.assertNotIn("whale_investors", res)
+        self.assertNotIn("raw_extra", res["historical_financials_recent"][0])
+
     def test_distill_daily_transactions(self):
         raw = [
             {"date": f"2026-09-{i:02d}", "close": 10000 + i * 50, "volume": 1000000}

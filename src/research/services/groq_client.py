@@ -50,13 +50,15 @@ def _call_groq_json(
     schema: dict[str, Any],
     max_tokens: int = 2048,
     temperature: float = 0.1,
+    retry_with_fast: bool = True,
 ) -> dict[str, Any]:
     api_key = getattr(settings, "GROQ_API_KEY", "")
     if not api_key or api_key == "your_groq_api_key_here" or api_key == "dummy_key":
         raise GroqAPIError("GROQ_API_KEY is not configured.")
 
-    if len(input_text) > 80_000:
-        raise GroqAPIError("Analysis context exceeds maximum token budget.")
+    if len(input_text) > 24_000:
+        logger.warning("Input text length (%s chars) exceeds token budget, trimming to 24,000 chars.", len(input_text))
+        input_text = input_text[:24_000]
 
     # Minify schema JSON to save input tokens
     compact_schema = json.dumps(schema, separators=(",", ":"))
@@ -90,6 +92,18 @@ def _call_groq_json(
         content = response.choices[0].message.content or "{}"
         payload = json.loads(content)
     except (APIError, APITimeoutError) as exc:
+        err_str = str(exc)
+        if retry_with_fast and model != FAST_MODEL and ("413" in err_str or "rate_limit" in err_str or "tokens" in err_str):
+            logger.warning("Groq model %s rate/TPM limit encountered. Retrying with FAST_MODEL %s...", model, FAST_MODEL)
+            return _call_groq_json(
+                model=FAST_MODEL,
+                instructions=instructions,
+                input_text=input_text,
+                schema=schema,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                retry_with_fast=False,
+            )
         logger.warning("Groq API request error: %s", exc)
         raise GroqAPIError(f"Groq API service error: {exc}") from exc
     except (ValueError, json.JSONDecodeError) as exc:

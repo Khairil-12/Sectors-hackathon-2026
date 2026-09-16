@@ -48,7 +48,7 @@ def _safe_dict(value: Any) -> dict[str, Any] | None:
 
 
 def distill_company_report(data: Any) -> dict[str, Any]:
-    """Extracts only critical valuation and financial indicators from company report."""
+    """Extracts only critical valuation and financial indicators from company report in compact format."""
     if not isinstance(data, dict) or "error" in data:
         return data if isinstance(data, dict) else {}
 
@@ -66,54 +66,88 @@ def distill_company_report(data: Any) -> dict[str, Any]:
     sub_sector = overview.get("sub_sector")
     sector = overview.get("sector")
     listing_board = overview.get("listing_board")
-    employee_num = overview.get("employee_num")
-    listing_date = overview.get("listing_date")
-    website = overview.get("website")
-    phone = overview.get("phone")
-    email = overview.get("email")
     last_close_price = overview.get("last_close_price")
     latest_close_date = overview.get("latest_close_date")
-    all_time_price = overview.get("all_time_price")
 
     # --- valuation fields ---
     pe_ratio = valuation.get("pe_ratio")
     intrinsic_value = valuation.get("intrinsic_value")
     forward_pe = valuation.get("forward_pe")
-    historical_valuation = valuation.get("historical_valuation")  # list of dicts
+    pb_ratio = valuation.get("pb_ratio")
+    ps_ratio = valuation.get("ps_ratio")
+    roe = valuation.get("roe")
+    roa = valuation.get("roa")
 
-    # --- future / analyst forecasts ---
-    company_value_forecasts = valuation.get("company_value_forecasts") if isinstance(valuation.get("company_value_forecasts"), list) else []
-    company_growth_forecasts = valuation.get("company_growth_forecasts") if isinstance(valuation.get("company_growth_forecasts"), list) else []
-    analyst_rating_breakdown = valuation.get("analyst_rating_breakdown")
+    # --- Compact historical financials (latest 3 periods only) ---
+    raw_hist_fin = financials.get("historical_financials", [])
+    compact_hist_fin = []
+    if isinstance(raw_hist_fin, list):
+        for h in raw_hist_fin[:3]:
+            if isinstance(h, dict):
+                compact_hist_fin.append({
+                    "year": _safe_int(h.get("year")),
+                    "quarter": h.get("quarter") or h.get("period"),
+                    "revenue": _safe_num(h.get("revenue") or h.get("total_revenue")),
+                    "net_income": _safe_num(h.get("net_income") or h.get("profit")),
+                    "eps": _safe_num(h.get("eps")),
+                })
 
-    # --- financials ---
-    eps = financials.get("eps")
-    historical_eps = financials.get("historical_eps")
-    historical_financials = financials.get("historical_financials")
+    # --- Compact historical dividends (latest 3 distributions only) ---
+    raw_hist_div = dividend.get("historical_dividends", [])
+    compact_hist_div = []
+    if isinstance(raw_hist_div, list):
+        for d in raw_hist_div[:3]:
+            if isinstance(d, dict):
+                compact_hist_div.append({
+                    "year": _safe_int(d.get("year")),
+                    "dps": _safe_num(d.get("dps") or d.get("amount")),
+                    "yield": _safe_num(d.get("yield") or d.get("dividend_yield")),
+                })
 
-    # --- dividend ---
-    historical_dividends = dividend.get("historical_dividends")
-    upcoming_dividends = dividend.get("upcoming_dividends")
-    yield_ttm = dividend.get("yield_ttm")
-    dividend_yield_avg = dividend.get("dividend_yield_avg")
-    dividend_ttm = dividend.get("dividend_ttm")
-    payout_ratio = dividend.get("payout_ratio")
-    cash_payout_ratio = dividend.get("cash_payout_ratio")
-    last_ex_dividend_date = dividend.get("last_ex_dividend_date")
+    # --- Compact historical valuation (latest 3 entries only) ---
+    raw_hist_val = valuation.get("historical_valuation", [])
+    compact_hist_val = []
+    if isinstance(raw_hist_val, list):
+        for v in raw_hist_val[:3]:
+            if isinstance(v, dict):
+                compact_hist_val.append({
+                    "year": _safe_int(v.get("year")),
+                    "pe": _safe_num(v.get("pe_ratio") or v.get("pe")),
+                    "pb": _safe_num(v.get("pb_ratio") or v.get("pb")),
+                })
 
-    # --- management ---
-    key_executives = management.get("key_executives", [])
-    executives_shareholdings = management.get("executives_shareholdings", [])
+    # --- Compact major shareholders (top 3 only) ---
+    raw_holders = ownership.get("major_shareholders", [])
+    compact_holders = []
+    if isinstance(raw_holders, list):
+        for s in raw_holders[:3]:
+            if isinstance(s, dict):
+                compact_holders.append({
+                    "name": s.get("name") or s.get("shareholder_name"),
+                    "pct": _safe_num(s.get("percentage") or s.get("pct")),
+                })
 
-    # --- ownership ---
-    major_shareholders = ownership.get("major_shareholders", [])
-    top_transactions = ownership.get("top_transactions")
-    institutional_transaction_flow = ownership.get("institutional_transaction_flow")
-    whale_investors = ownership.get("whale_investors")
-    conglomerates_group = ownership.get("conglomerates_group")
+    # --- Compact key executives (top 3 only) ---
+    raw_execs = management.get("key_executives", [])
+    compact_execs = []
+    if isinstance(raw_execs, list):
+        for ex in raw_execs[:3]:
+            if isinstance(ex, dict):
+                compact_execs.append({
+                    "name": ex.get("name") or ex.get("executive_name"),
+                    "title": ex.get("title") or ex.get("position"),
+                })
 
-    # --- peers ---
-    peers_data = peers[0] if peers else None if isinstance(peers, list) and len(peers) > 0 else None
+    # --- Compact peers benchmarks (top 3 only) ---
+    compact_peers = []
+    if isinstance(peers, list):
+        for p in peers[:3]:
+            if isinstance(p, dict):
+                compact_peers.append({
+                    "symbol": p.get("symbol"),
+                    "pe": _safe_num(p.get("pe_ratio")),
+                    "pb": _safe_num(p.get("pb_ratio")),
+                })
 
     return {
         "symbol": overview.get("symbol"),
@@ -123,64 +157,33 @@ def distill_company_report(data: Any) -> dict[str, Any]:
         "sub_sector": sub_sector,
         "sector": sector,
         "listing_board": listing_board,
-        "employee_num": _safe_int(employee_num),
-        "listing_date": _safe_str(listing_date),
-        "website": _safe_str(website),
-        "phone": _safe_str(phone),
-        "email": _safe_str(email),
         "last_close_price": _safe_num(last_close_price),
         "latest_close_date": _safe_str(latest_close_date),
-        "all_time_price": {
-            "ytd_low": all_time_price.get("ytd_low") if isinstance(all_time_price, dict) else None,
-            "52_w_low": all_time_price.get("52_w_low") if isinstance(all_time_price, dict) else None,
-            "90_d_low": all_time_price.get("90_d_low") if isinstance(all_time_price, dict) else None,
-            "ytd_high": all_time_price.get("ytd_high") if isinstance(all_time_price, dict) else None,
-            "52_w_high": all_time_price.get("52_w_high") if isinstance(all_time_price, dict) else None,
-            "90_d_high": all_time_price.get("90_d_high") if isinstance(all_time_price, dict) else None,
-            "all_time_low": all_time_price.get("all_time_low") if isinstance(all_time_price, dict) else None,
-            "all_time_high": all_time_price.get("all_time_high") if isinstance(all_time_price, dict) else None,
-        },
         # --- valuation ---
         "pe_ratio": _safe_num(pe_ratio),
-        "pb_ratio": _safe_num(valuation.get("pb_ratio")),
-        "ps_ratio": _safe_num(valuation.get("ps_ratio")),
+        "pb_ratio": _safe_num(pb_ratio),
+        "ps_ratio": _safe_num(ps_ratio),
         "dividend_yield": _safe_num(dividend.get("yield_ttm") or valuation.get("dividend_yield")),
-        "roe": _safe_num(valuation.get("roe")),
-        "roa": _safe_num(valuation.get("roa")),
+        "roe": _safe_num(roe),
+        "roa": _safe_num(roa),
         "intrinsic_value": _safe_num(intrinsic_value),
         "forward_pe": _safe_num(forward_pe),
-        "historical_valuation": historical_valuation,  # list of dicts, unchanged
-        # --- future / forecasts ---
-        "company_value_forecasts": company_value_forecasts,  # list of dicts, unchanged
-        "company_growth_forecasts": company_growth_forecasts,  # list of dicts, unchanged
-        "analyst_rating_breakdown": analyst_rating_breakdown,  # dict, unchanged
+        "historical_valuation_recent": compact_hist_val,
         # --- financials ---
-        "eps": _safe_num(eps),
+        "eps": _safe_num(financials.get("eps")),
         "revenue": _safe_num(financials.get("revenue")),
         "net_income": _safe_num(financials.get("net_income")),
         "total_assets": _safe_num(financials.get("total_assets")),
-        "historical_eps": historical_eps,  # dict, unchanged
-        "historical_financials": historical_financials,  # list, unchanged
+        "historical_financials_recent": compact_hist_fin,
         # --- dividend ---
-        "historical_dividends": historical_dividends,  # list, unchanged
-        "upcoming_dividends": upcoming_dividends,  # list, unchanged
-        "yield_ttm": _safe_num(yield_ttm),
-        "dividend_yield_avg": _safe_num(dividend_yield_avg),
-        "dividend_ttm": _safe_int(dividend_ttm),
-        "payout_ratio": _safe_num(payout_ratio),
-        "cash_payout_ratio": _safe_num(cash_payout_ratio),
-        "last_ex_dividend_date": _safe_str(last_ex_dividend_date),
-        # --- management ---
-        "key_executives": key_executives,  # list, unchanged
-        "executives_shareholdings": executives_shareholdings,  # list, unchanged
-        # --- ownership ---
-        "major_shareholders": major_shareholders,  # list, unchanged
-        "top_transactions": top_transactions,  # dict, unchanged
-        "institutional_transaction_flow": institutional_transaction_flow,  # dict, unchanged
-        "whale_investors": whale_investors,  # list, unchanged
-        "conglomerates_group": conglomerates_group,  # list, unchanged
-        # --- peers ---
-        "peers_data": peers_data,  # dict, unchanged
+        "yield_ttm": _safe_num(dividend.get("yield_ttm")),
+        "dividend_ttm": _safe_int(dividend.get("dividend_ttm")),
+        "payout_ratio": _safe_num(dividend.get("payout_ratio")),
+        "historical_dividends_recent": compact_hist_div,
+        # --- governance & peers ---
+        "major_shareholders": compact_holders,
+        "key_executives": compact_execs,
+        "peer_benchmarks": compact_peers,
     }
 
 
