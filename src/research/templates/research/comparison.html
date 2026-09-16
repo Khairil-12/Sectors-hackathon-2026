@@ -44,6 +44,13 @@
                 <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="big-4-banks">Big 4 Banks</button>
                 <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="telco-majors">Telco Majors</button>
                 <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="astra-conglomerates">Astra Conglomerates</button>
+                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="mining">Mining Sector</button>
+                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="real-estate">Real Estate</button>
+                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="manufacturing">Manufacturing</button>
+                <button type="button" id="resetBtn" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-400 hover:border-red-500 hover:text-red-400 transition-colors">
+                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    Reset
+                </button>
                 <a href="{% url 'research:comparison' %}?symbols=BBCA,BMRI,BBRI,BBNI,TLKM,ASII,ICBP,INDF,UNTR,ANTM" class="inline-flex items-center rounded-full border border-brand-800 bg-brand-950/40 px-3 py-1 text-brand-300 hover:border-brand-500 hover:text-white transition-colors">Top 10 IDX Blue Chips</a>
             </div>
         </form>
@@ -175,20 +182,27 @@
     const presetMaps = {
         'big-4-banks': ['BBCA', 'BMRI', 'BBRI', 'BBNI'],
         'telco-majors': ['TLKM', 'EXCL', 'ISAT'],
-        'astra-conglomerates': ['ASII', 'UNTR']
+        'astra-conglomerates': ['ASII', 'UNTR'],
+        'mining': ['ANTM', 'TINS', 'INCO', 'ADRO'],
+        'telecom': ['TLKM', 'EXCL', 'ISAT'],
+        'real-estate': ['BMTR', 'BSDE', 'ELTY', 'PWON'],
+        'manufacturing': ['ASII', 'UNTR', 'INTP', 'SMSM']
     };
 
     const updatePresetStates = () => {
         const input = document.getElementById('symbolsInput');
-        const currentSymbols = new Set(
-            input.value.split(',').map(s => s.trim().toUpperCase()).filter(Boolean)
-        );
+        const currentSymbols = input.value
+            .split(',')
+            .map(s => s.trim().toUpperCase())
+            .filter(Boolean);
+        const currentSet = new Set(currentSymbols);
 
         document.querySelectorAll('.preset-btn').forEach((btn) => {
             const preset = btn.dataset.preset;
             const presetSymbols = presetMaps[preset] || [];
-            const isSelected = presetSymbols.length > 0 && 
-                               presetSymbols.every(sym => currentSymbols.has(sym));
+            // Only highlight if preset exactly matches current input (same symbols, same count)
+            const isSelected = presetSymbols.length === currentSymbols.length &&
+                               presetSymbols.every(sym => currentSet.has(sym));
             
             if (isSelected) {
                 btn.classList.add('border-brand-500', 'bg-brand-950/40', 'text-brand-300');
@@ -213,6 +227,14 @@
     });
 
     document.getElementById('symbolsInput').addEventListener('input', updatePresetStates);
+
+    document.getElementById('resetBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('symbolsInput');
+        input.value = '';
+        input.focus();
+        updatePresetStates();
+    });
 
     document.querySelectorAll('.stock-recommendation').forEach((button) => {
         button.addEventListener('click', () => {
