@@ -42,15 +42,8 @@
             <div class="flex flex-wrap items-center gap-2 text-xs pt-1">
                 <span class="text-slate-400 font-medium text-[11px] mr-1">Popular Presets:</span>
                 <button type="button" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="big-4-banks">Big 4 Banks</button>
-                <button type=\"button\" class=\"inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors\" data-preset=\"telco-majors\">Telco Majors</button>
-                <a href=\"{% url 'research:comparison' %}?symbols=ASII,UNTR\" class=\"inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors\">Astra Conglomerates</button>
-                <a href="{% url 'research:comparison' %}?symbols=ADRO,PT
-
-The user is asking me to continue with the implementation. I should provide the remaining todo items and completion status.
-<tool_call>
-<function=bash>
-<parameter=command>
-cat src/research/templates/research/comparison.html
+                <button type="button" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="telco-majors">Telco Majors</button>
+                <button type="button" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="astra-conglomerates">Astra Conglomerates</button>
                 <a href="{% url 'research:comparison' %}?symbols=BBCA,BMRI,BBRI,BBNI,TLKM,ASII,ICBP,INDF,UNTR,ANTM" class="inline-flex items-center rounded-full border border-brand-800 bg-brand-950/40 px-3 py-1 text-brand-300 hover:border-brand-500 hover:text-white transition-colors">Top 10 IDX Blue Chips</a>
             </div>
         </form>
@@ -179,6 +172,23 @@ cat src/research/templates/research/comparison.html
     {% endif %}
 </section>
 <script>
+    const presetMaps = {
+        'big-4-banks': ['BBCA', 'BMRI', 'BBRI', 'BBNI'],
+        'telco-majors': ['TLKM', 'EXCL', 'ISAT'],
+        'astra-conglomerates': ['ASII', 'UNTR']
+    };
+
+    document.querySelectorAll('[data-preset]').forEach((button) => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const input = document.getElementById('symbolsInput');
+            const preset = button.dataset.preset;
+            const symbols = presetMaps[preset] || [];
+            input.value = symbols.join(', ');
+            input.focus();
+        });
+    });
+
     document.querySelectorAll('.stock-recommendation').forEach((button) => {
         button.addEventListener('click', () => {
             const input = document.getElementById('symbolsInput');
