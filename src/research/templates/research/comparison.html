@@ -41,9 +41,9 @@
             <!-- Quick Presets -->
             <div class="flex flex-wrap items-center gap-2 text-xs pt-1">
                 <span class="text-slate-400 font-medium text-[11px] mr-1">Popular Presets:</span>
-                <button type="button" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="big-4-banks">Big 4 Banks</button>
-                <button type="button" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="telco-majors">Telco Majors</button>
-                <button type="button" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="astra-conglomerates">Astra Conglomerates</button>
+                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="big-4-banks">Big 4 Banks</button>
+                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="telco-majors">Telco Majors</button>
+                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="astra-conglomerates">Astra Conglomerates</button>
                 <a href="{% url 'research:comparison' %}?symbols=BBCA,BMRI,BBRI,BBNI,TLKM,ASII,ICBP,INDF,UNTR,ANTM" class="inline-flex items-center rounded-full border border-brand-800 bg-brand-950/40 px-3 py-1 text-brand-300 hover:border-brand-500 hover:text-white transition-colors">Top 10 IDX Blue Chips</a>
             </div>
         </form>
@@ -178,6 +178,28 @@
         'astra-conglomerates': ['ASII', 'UNTR']
     };
 
+    const updatePresetStates = () => {
+        const input = document.getElementById('symbolsInput');
+        const currentSymbols = new Set(
+            input.value.split(',').map(s => s.trim().toUpperCase()).filter(Boolean)
+        );
+
+        document.querySelectorAll('.preset-btn').forEach((btn) => {
+            const preset = btn.dataset.preset;
+            const presetSymbols = presetMaps[preset] || [];
+            const isSelected = presetSymbols.length > 0 && 
+                               presetSymbols.every(sym => currentSymbols.has(sym));
+            
+            if (isSelected) {
+                btn.classList.add('border-brand-500', 'bg-brand-950/40', 'text-brand-300');
+                btn.classList.remove('border-slate-700', 'bg-surface-950');
+            } else {
+                btn.classList.remove('border-brand-500', 'bg-brand-950/40', 'text-brand-300');
+                btn.classList.add('border-slate-700', 'bg-surface-950');
+            }
+        });
+    };
+
     document.querySelectorAll('[data-preset]').forEach((button) => {
         button.addEventListener('click', (e) => {
             e.preventDefault();
@@ -186,8 +208,11 @@
             const symbols = presetMaps[preset] || [];
             input.value = symbols.join(', ');
             input.focus();
+            updatePresetStates();
         });
     });
+
+    document.getElementById('symbolsInput').addEventListener('input', updatePresetStates);
 
     document.querySelectorAll('.stock-recommendation').forEach((button) => {
         button.addEventListener('click', () => {
@@ -197,7 +222,10 @@
             if (!symbols.includes(symbol) && symbols.length < 10) symbols.push(symbol);
             input.value = symbols.join(', ');
             input.focus();
+            updatePresetStates();
         });
     });
+
+    updatePresetStates();
 </script>
 {% endblock %}
