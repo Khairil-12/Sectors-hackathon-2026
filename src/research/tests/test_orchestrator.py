@@ -66,3 +66,49 @@ class OrchestratorTests(TestCase):
         for item in result:
             self.assertIn("company_name", item)
             self.assertIn("pe_ratio", item)
+
+    def test_detect_flow_divergence_accumulation(self):
+        from research.services.orchestrator import detect_flow_divergence
+        context = {
+            "BBCA_daily_transaction": [{"close": 9500}, {"close": 10000}],
+            "BBCA_foreign_flow": [
+                {"net_foreign": 50_000_000_000},
+                {"net_foreign": 60_000_000_000},
+            ],
+        }
+        divergences = detect_flow_divergence(context, ["BBCA"])
+        self.assertEqual(len(divergences), 1)
+        self.assertEqual(divergences[0]["type"], "ACCUMULATION_DIVERGENCE")
+        self.assertEqual(divergences[0]["symbol"], "BBCA")
+        self.assertIn("Accumulation Divergence", divergences[0]["badge_label"])
+
+    def test_detect_flow_divergence_distribution(self):
+        from research.services.orchestrator import detect_flow_divergence
+        context = {
+            "BBRI_daily_transaction": [{"close": 4800}, {"close": 4500}],
+            "BBRI_foreign_flow": [
+                {"net_foreign": -30_000_000_000},
+                {"net_foreign": -40_000_000_000},
+            ],
+        }
+        divergences = detect_flow_divergence(context, ["BBRI"])
+        self.assertEqual(len(divergences), 1)
+        self.assertEqual(divergences[0]["type"], "DISTRIBUTION_WARNING")
+        self.assertEqual(divergences[0]["symbol"], "BBRI")
+        self.assertIn("Distribution", divergences[0]["badge_label"])
+
+    def test_build_programmatic_citations(self):
+        from research.services.orchestrator import _build_programmatic_citations
+        context = {
+            "BBCA_company_report": {
+                "overview": {"company_name": "Bank Central Asia Tbk", "market_cap": 1200000000000000},
+                "valuation": {"pe_ratio": 23.4, "pb_ratio": 4.8},
+            },
+            "BBCA_daily_transaction": [{"date": "2026-09-15", "close": 9975}],
+            "BBCA_foreign_flow": [{"date": "2026-09-15", "net_foreign": 45000000000}],
+        }
+        citations = _build_programmatic_citations(context, ["BBCA"])
+        self.assertTrue(len(citations) >= 2)
+        endpoints = [c["source_endpoint"] for c in citations]
+        self.assertIn("/v2/company/report/BBCA/", endpoints)
+        self.assertIn("/v2/foreign-flow/BBCA/", endpoints)

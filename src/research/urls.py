@@ -6,6 +6,7 @@ app_name = "research"
 urlpatterns = [
     path("", views.workspace, name="workspace"),
     path("report/<str:id>/", views.report_detail, name="report_detail"),
+    path("report/<str:id>/ask/", views.report_ask, name="report_ask"),
     path("report/<str:id>/delete/", views.report_delete, name="report_delete"),
     path("compare/", views.comparison, name="comparison"),
     path("screener/", views.screener, name="screener"),

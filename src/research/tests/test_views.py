@@ -241,3 +241,45 @@ class ViewRoutingTests(TestCase):
         response = self.client.get("/saved-reports/?q=BBCA")
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Equity Research: BBCA")
+
+    @patch("research.views._client")
+    def test_report_ask_view_success(self, mock_client_func):
+        from unittest.mock import MagicMock
+        mock_resp = MagicMock()
+        mock_choice = MagicMock()
+        mock_choice.message.content = "BBCA exhibits strong net interest margin and consistent ROE above 20%."
+        mock_resp.choices = [mock_choice]
+        mock_client_func.return_value.chat.completions.create.return_value = mock_resp
+
+        with self.settings(GROQ_API_KEY="gsk_test_key_valid"):
+            response = self.client.post(
+                f"/report/{self.sample_report.pk}/ask/",
+                {"question": "Bagaimana ketahanan profitabilitas BBCA?"},
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Bagaimana ketahanan profitabilitas BBCA?")
+        self.assertContains(response, "BBCA exhibits strong net interest margin")
+
+    def test_report_ask_view_fallback_without_key(self):
+        with self.settings(GROQ_API_KEY=""):
+            response = self.client.post(
+                f"/report/{self.sample_report.pk}/ask/",
+                {"question": "Bagaimana valuasi BBCA?"},
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Berdasarkan data laporan")
+
+    def test_report_ask_view_empty_question(self):
+        response = self.client.post(
+            f"/report/{self.sample_report.pk}/ask/",
+            {"question": "  "},
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertContains(response, "Pertanyaan follow-up minimal 3 karakter", status_code=400)
+
+    def test_report_ask_view_404_for_nonexistent_report(self):
+        response = self.client.post(
+            "/report/999999/ask/",
+            {"question": "Any question"},
+        )
+        self.assertEqual(response.status_code, 404)

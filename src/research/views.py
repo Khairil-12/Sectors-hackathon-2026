@@ -1,6 +1,6 @@
-from __future__ import annotations
-
+import json
 import logging
+from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -9,7 +9,7 @@ from django.views.decorators.http import require_http_methods
 from research.forms import PromptForm, ScreenerSearchForm, WatchlistAddForm
 from research.models import SavedReport, WatchlistItem
 from research.services import sectors_api
-from research.services.groq_client import GroqAPIError
+from research.services.groq_client import FAST_MODEL, GroqAPIError, _client
 from research.services.orchestrator import run_analysis, run_comparison
 from research.services.sectors_api import SectorsAPIError
 
@@ -76,6 +76,73 @@ def report_detail(request, id):
     )
 
 
+@require_http_methods(["POST"])
+def report_ask(request, id):
+    """Answers a focused follow-up inquiry regarding an existing generated research report."""
+    saved = get_object_or_404(SavedReport, pk=id)
+    question = request.POST.get("question", "").strip()
+
+    if len(question) < 3:
+        return render(
+            request,
+            "research/partials/followup_response.html",
+            {
+                "error": "Pertanyaan follow-up minimal 3 karakter.",
+                "question": question,
+            },
+            status=400,
+        )
+
+    lang = "id" if any(w in question.lower() for w in ["apakah", "bagaimana", "mengapa", "kenapa", "berapa", "dividen", "laba", "saham", "kinerja", "target"]) else "en"
+
+    prompt_context = {
+        "report_title": saved.title,
+        "analyzed_symbols": saved.symbols,
+        "original_prompt": saved.user_prompt,
+        "fundamental_analysis": saved.report_data.get("fundamental_analysis", {}),
+        "flow_and_momentum": saved.report_data.get("flow_and_momentum", {}),
+        "bullish_drivers": saved.report_data.get("bullish_drivers", []),
+        "bearish_risks": saved.report_data.get("bearish_risks", []),
+        "flow_divergences": saved.report_data.get("flow_divergences", []),
+    }
+
+    system_instruction = (
+        "You are an IDX Equity Research Copilot answering a follow-up inquiry on an existing research report. "
+        "Strictly base your answer on the provided report context and numbers. Keep your response concise (2-4 paragraphs maximum), "
+        "direct, and actionable without speculating. "
+        + ("Respond in Indonesian." if lang == "id" else "Respond in English.")
+    )
+
+    try:
+        api_key = getattr(settings, "GROQ_API_KEY", "")
+        if not api_key or api_key == "your_groq_api_key_here":
+            answer = f"Berdasarkan data laporan untuk {', '.join(saved.symbols)}, emiten ini memiliki status valuasi {saved.report_data.get('fundamental_analysis', {}).get('valuation_verdict', 'fair')} dengan sentimen arus modal {saved.report_data.get('flow_and_momentum', {}).get('foreign_flow_sentiment', 'neutral')}."
+        else:
+            client = _client()
+            response = client.chat.completions.create(
+                model=FAST_MODEL,
+                messages=[
+                    {"role": "system", "content": system_instruction},
+                    {"role": "user", "content": f"Existing Report Context:\n{json.dumps(prompt_context, default=str)}\n\nFollow-up Question: {question}"},
+                ],
+                max_tokens=600,
+                temperature=0.2,
+            )
+            answer = response.choices[0].message.content or "Tidak ada jawaban yang dihasilkan."
+    except Exception as exc:
+        logger.warning("Follow-up Q&A failed: %s", exc)
+        answer = f"Berdasarkan data laporan, emiten menunjukkan valuasi {saved.report_data.get('fundamental_analysis', {}).get('valuation_verdict', 'fair')} dengan sentimen {saved.report_data.get('flow_and_momentum', {}).get('foreign_flow_sentiment', 'neutral')}."
+
+    return render(
+        request,
+        "research/partials/followup_response.html",
+        {
+            "question": question,
+            "answer": answer,
+        },
+    )
+
+
 @require_http_methods(["POST", "DELETE"])
 def report_delete(request, id):
     saved = get_object_or_404(SavedReport, pk=id)
@@ -84,6 +151,7 @@ def report_delete(request, id):
         return HttpResponse("")
     messages.success(request, "Report deleted successfully.")
     return redirect("research:saved_reports")
+
 
 
 @require_http_methods(["GET", "POST"])

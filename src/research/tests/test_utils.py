@@ -80,3 +80,28 @@ class ResearchUtilsTests(SimpleTestCase):
             rendered,
             "BBCA | Rp 771.92 T | Rp 771,917,544,337,500 | 23.40x | 2.40%",
         )
+
+    def test_sparkline_points_filter(self):
+        from research.templatetags.research_tags import sparkline_points
+        prices = [
+            {"date": "2026-09-01", "close": 100},
+            {"date": "2026-09-02", "close": 150},
+            {"date": "2026-09-03", "close": 200},
+        ]
+        points = sparkline_points(prices, "140,40")
+        self.assertTrue(isinstance(points, str))
+        self.assertTrue(len(points.split(" ")) == 3)
+        self.assertTrue(points.startswith("4.0,"))
+
+    def test_sparkline_points_invalid_input(self):
+        from research.templatetags.research_tags import sparkline_points
+        self.assertEqual(sparkline_points([]), "")
+        self.assertEqual(sparkline_points([{"close": 100}]), "")
+        self.assertEqual(sparkline_points("invalid"), "")
+
+    def test_get_item_filter(self):
+        from research.templatetags.research_tags import get_item
+        data = {"name": "BBCA", "valuation": {"pe": 23.4}}
+        self.assertEqual(get_item(data, "name"), "BBCA")
+        self.assertEqual(get_item(data, "nonexistent"), None)
+        self.assertEqual(get_item("string", "name"), "")
