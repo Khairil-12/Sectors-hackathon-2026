@@ -1,20 +1,20 @@
-<!-- Flowbite Mobile Header / Navbar -->
-<header class="sticky top-0 z-20 flex items-center justify-between border-b border-slate-800 bg-surface-900/95 backdrop-blur px-4 py-3 lg:hidden">
+<!-- Mobile Header -->
+<header class="sticky top-0 z-20 flex items-center justify-between border-b border-sidebar-border bg-sidebar px-4 py-3 lg:hidden">
     <div class="flex items-center gap-3">
-        <button type="button" data-drawer-target="mobile-drawer" data-drawer-show="mobile-drawer" aria-controls="mobile-drawer" class="inline-flex items-center p-2 text-sm text-slate-400 rounded-lg hover:bg-surface-800 focus:outline-none focus:ring-2 focus:ring-slate-700">
+        <button type="button" data-drawer-target="mobile-drawer" data-drawer-show="mobile-drawer" aria-controls="mobile-drawer" class="inline-flex items-center p-2 text-sm text-sidebar-foreground rounded-lg hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
             <span class="sr-only">Open navigation drawer</span>
             <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
             </svg>
         </button>
-        <a href="{% url 'research:workspace' %}" class="flex items-center gap-2 text-base font-bold text-brand-400">
-            <span class="h-2 w-2 rounded-full bg-brand-500"></span>
+        <a href="{% url 'research:workspace' %}" class="flex items-center gap-2 text-base font-semibold text-sidebar-foreground">
+            <span class="h-2 w-2 rounded-full bg-sidebar-ring"></span>
             <span>IDX Copilot</span>
         </a>
     </div>
 
     <div class="flex items-center gap-2">
-        <a href="{% url 'research:workspace' %}" class="inline-flex items-center gap-1 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-brand-500 transition-colors">
+        <a href="{% url 'research:workspace' %}" class="inline-flex items-center gap-1 rounded-lg bg-sidebar-primary px-3 py-1.5 text-xs font-semibold text-sidebar-primary-foreground shadow-xs hover:opacity-90 transition-opacity">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
