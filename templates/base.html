@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="dark h-full bg-surface-950">
+<html lang="id" class="dark h-full bg-background">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,10 +8,7 @@
     <link rel="stylesheet" href="{% static 'dist/app.css' %}">
     <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmReVU07Z0CYxN50GQXYNX45P4/fhy/epMvxyBi" crossorigin="anonymous"></script>
 </head>
-<body class="min-h-screen bg-surface-950 text-slate-100 antialiased font-sans flex flex-col">
-    <!-- Mobile Header / Top Bar -->
-    {% include "components/mobile_header.html" %}
-
+<body class="min-h-screen bg-background text-foreground antialiased font-sans flex flex-col">
     <!-- Mobile Off-Canvas Drawer (Flowbite) -->
     {% include "components/mobile_drawer.html" %}
 
