@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Research Workspace - IDX Copilot{% endblock %}
 {% block content %}
-<section class="mx-auto max-w-5xl space-y-10">
+<section class="mx-auto max-w-7xl space-y-10 px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
     <!-- Hero Header -->
     <div class="space-y-3">
-        <h1 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
+        <h1 class="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl lg:text-5xl">
             Grounded AI equity research for IDX stocks.
         </h1>
-        <p class="max-w-2xl text-sm sm:text-base text-slate-400 leading-relaxed">
+        <p class="max-w-2xl text-sm sm:text-base text-muted-foreground leading-relaxed">
             Query real-time valuations, bandarmologi broker accumulation, foreign institutional flows, and quarterly progression with strict schema validation.
         </p>
     </div>
@@ -18,58 +18,58 @@
     <!-- Research Capabilities & Direct Query Domains -->
     <div class="space-y-3">
         <div class="flex items-center justify-between">
-            <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Analysis Capabilities</h2>
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Analysis Capabilities</h2>
         </div>
         
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <button type="button" class="group text-left rounded-xl border border-slate-800 bg-surface-900 p-5 shadow-panel hover:border-brand-500/80 hover:bg-surface-850 transition-all cursor-pointer" onclick="fillPromptAndFocus('Analisis fundamental, valuasi P/E dan P/B, serta pertumbuhan laba BBCA')">
-                <div class="w-8 h-8 rounded-lg bg-surface-950 border border-slate-800 flex items-center justify-center text-brand-400 group-hover:border-brand-500/50 mb-3 transition-colors">
+            <button type="button" class="group text-left rounded-xl border border-border bg-card p-5 shadow-panel hover:border-primary/80 hover:bg-muted transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" onclick="fillPromptAndFocus('Analisis fundamental, valuasi P/E dan P/B, serta pertumbuhan laba BBCA')">
+                <div class="w-8 h-8 rounded-lg bg-muted border border-border flex items-center justify-center text-primary group-hover:border-primary/50 mb-3 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                     </svg>
                 </div>
-                <h3 class="text-sm font-semibold text-slate-200 group-hover:text-white transition-colors">Fundamental Valuation</h3>
-                <p class="mt-1.5 text-xs text-slate-400 leading-relaxed">P/E, P/B, ROE, revenue &amp; net profit trajectory benchmarked against subsectors.</p>
-                <span class="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-brand-400 group-hover:text-brand-300">
+                <h3 class="text-sm font-semibold text-card-foreground group-hover:text-foreground transition-colors">Fundamental Valuation</h3>
+                <p class="mt-1.5 text-xs text-muted-foreground leading-relaxed">P/E, P/B, ROE, revenue &amp; net profit trajectory benchmarked against subsectors.</p>
+                <span class="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-primary group-hover:text-primary-dark">
                     Try query &rarr;
                 </span>
             </button>
 
-            <button type="button" class="group text-left rounded-xl border border-slate-800 bg-surface-900 p-5 shadow-panel hover:border-emerald-500/80 hover:bg-surface-850 transition-all cursor-pointer" onclick="fillPromptAndFocus('Bagaimana tren net foreign flow dan kepemilikan asing pada BMRI dalam 30 hari terakhir?')">
-                <div class="w-8 h-8 rounded-lg bg-surface-950 border border-slate-800 flex items-center justify-center text-emerald-400 group-hover:border-emerald-500/50 mb-3 transition-colors">
+            <button type="button" class="group text-left rounded-xl border border-border bg-card p-5 shadow-panel hover:border-primary/80 hover:bg-muted transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" onclick="fillPromptAndFocus('Bagaimana tren net foreign flow dan kepemilikan asing pada BMRI dalam 30 hari terakhir?')">
+                <div class="w-8 h-8 rounded-lg bg-muted border border-border flex items-center justify-center text-primary group-hover:border-primary/50 mb-3 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                     </svg>
                 </div>
-                <h3 class="text-sm font-semibold text-slate-200 group-hover:text-white transition-colors">Foreign Capital Flow</h3>
-                <p class="mt-1.5 text-xs text-slate-400 leading-relaxed">Track multi-day net foreign buy and sell pressure across individual IDX tickers.</p>
-                <span class="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400 group-hover:text-emerald-300">
+                <h3 class="text-sm font-semibold text-card-foreground group-hover:text-foreground transition-colors">Foreign Capital Flow</h3>
+                <p class="mt-1.5 text-xs text-muted-foreground leading-relaxed">Track multi-day net foreign buy and sell pressure across individual IDX tickers.</p>
+                <span class="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-primary group-hover:text-primary-dark">
                     Try query &rarr;
                 </span>
             </button>
 
-            <button type="button" class="group text-left rounded-xl border border-slate-800 bg-surface-900 p-5 shadow-panel hover:border-amber-500/80 hover:bg-surface-850 transition-all cursor-pointer" onclick="fillPromptAndFocus('Cek broker akumulasi dan top buyer-seller saham TLKM')">
-                <div class="w-8 h-8 rounded-lg bg-surface-950 border border-slate-800 flex items-center justify-center text-amber-400 group-hover:border-amber-500/50 mb-3 transition-colors">
+            <button type="button" class="group text-left rounded-xl border border-border bg-card p-5 shadow-panel hover:border-primary/80 hover:bg-muted transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" onclick="fillPromptAndFocus('Cek broker akumulasi dan top buyer-seller saham TLKM')">
+                <div class="w-8 h-8 rounded-lg bg-muted border border-border flex items-center justify-center text-primary group-hover:border-primary/50 mb-3 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                     </svg>
                 </div>
-                <h3 class="text-sm font-semibold text-slate-200 group-hover:text-white transition-colors">Bandarmologi &amp; Brokers</h3>
-                <p class="mt-1.5 text-xs text-slate-400 leading-relaxed">Analyze top buyer and seller broker concentrations to detect accumulation phases.</p>
-                <span class="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-amber-400 group-hover:text-amber-300">
+                <h3 class="text-sm font-semibold text-card-foreground group-hover:text-foreground transition-colors">Bandarmologi &amp; Brokers</h3>
+                <p class="mt-1.5 text-xs text-muted-foreground leading-relaxed">Analyze top buyer and seller broker concentrations to detect accumulation phases.</p>
+                <span class="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-primary group-hover:text-primary-dark">
                     Try query &rarr;
                 </span>
             </button>
 
-            <button type="button" class="group text-left rounded-xl border border-slate-800 bg-surface-900 p-5 shadow-panel hover:border-indigo-500/80 hover:bg-surface-850 transition-all cursor-pointer" onclick="fillPromptAndFocus('Bandingkan valuasi dan prospek fundamental antara BBCA, BBRI, BMRI, dan BBNI')">
-                <div class="w-8 h-8 rounded-lg bg-surface-950 border border-slate-800 flex items-center justify-center text-indigo-400 group-hover:border-indigo-500/50 mb-3 transition-colors">
+            <button type="button" class="group text-left rounded-xl border border-border bg-card p-5 shadow-panel hover:border-primary/80 hover:bg-muted transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" onclick="fillPromptAndFocus('Bandingkan valuasi dan prospek fundamental antara BBCA, BBRI, BMRI, dan BBNI')">
+                <div class="w-8 h-8 rounded-lg bg-muted border border-border flex items-center justify-center text-primary group-hover:border-primary/50 mb-3 transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                 </div>
-                <h3 class="text-sm font-semibold text-slate-200 group-hover:text-white transition-colors">Grounded Peer Comparison</h3>
-                <p class="mt-1.5 text-xs text-slate-400 leading-relaxed">Every thesis bullet is tied back directly to Sectors API v2 endpoints and dates.</p>
-                <span class="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-indigo-400 group-hover:text-indigo-300">
+                <h3 class="text-sm font-semibold text-card-foreground group-hover:text-foreground transition-colors">Grounded Peer Comparison</h3>
+                <p class="mt-1.5 text-xs text-muted-foreground leading-relaxed">Every thesis bullet is tied back directly to Sectors API v2 endpoints and dates.</p>
+                <span class="mt-3 inline-flex items-center gap-1 text-[11px] font-medium text-primary group-hover:text-primary-dark">
                     Try query &rarr;
                 </span>
             </button>
@@ -79,8 +79,8 @@
     <!-- Recent Analyses Section -->
     <div class="space-y-4 pt-2">
         <div class="flex items-center justify-between">
-            <h2 class="text-base font-semibold text-white">Recent Research Reports</h2>
-            <a href="{% url 'research:saved_reports' %}" class="inline-flex items-center gap-1 text-xs font-medium text-brand-400 hover:text-brand-300 transition-colors">
+            <h2 class="text-base font-semibold text-foreground">Recent Research Reports</h2>
+            <a href="{% url 'research:saved_reports' %}" class="inline-flex items-center gap-1 text-xs font-medium text-primary hover:text-primary-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm">
                 <span>View all reports</span>
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -91,29 +91,29 @@
         {% if recent_reports %}
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {% for item in recent_reports %}
-                    <a href="{% url 'research:report_detail' item.pk %}" class="group block rounded-xl border border-slate-800 bg-surface-900 p-5 hover:border-brand-500/80 transition-all shadow-panel">
-                        <div class="flex items-center justify-between text-xs text-slate-400">
+                    <a href="{% url 'research:report_detail' item.pk %}" class="group block rounded-xl border border-border bg-card p-5 hover:border-primary/80 transition-all shadow-panel focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                        <div class="flex items-center justify-between text-xs text-muted-foreground">
                             <div class="flex flex-wrap gap-1">
                                 {% for sym in item.symbols %}
-                                    <span class="rounded bg-brand-900/60 border border-brand-800 px-2 py-0.5 text-xs font-bold text-brand-400 font-mono">{{ sym }}</span>
+                                    <span class="rounded bg-muted border border-border px-2 py-0.5 text-xs font-bold text-primary font-mono">{{ sym }}</span>
                                 {% endfor %}
                             </div>
-                            <span class="text-[11px] text-slate-500">{{ item.created_at|date:"d M Y" }}</span>
+                            <span class="text-[11px] text-muted-foreground">{{ item.created_at|date:"d M Y" }}</span>
                         </div>
-                        <h3 class="mt-3 text-sm font-semibold text-slate-200 group-hover:text-white line-clamp-2">{{ item.title }}</h3>
-                        <p class="mt-2 text-xs text-slate-400 line-clamp-2 leading-relaxed">{{ item.report_data.summary }}</p>
+                        <h3 class="mt-3 text-sm font-semibold text-card-foreground group-hover:text-foreground line-clamp-2">{{ item.title }}</h3>
+                        <p class="mt-2 text-xs text-muted-foreground line-clamp-2 leading-relaxed">{{ item.report_data.summary }}</p>
                     </a>
                 {% endfor %}
             </div>
         {% else %}
-            <div class="rounded-xl border border-dashed border-slate-800 bg-surface-900/40 p-8 text-center">
-                <div class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-surface-800 text-slate-400 mb-2">
+            <div class="rounded-xl border border-dashed border-border bg-muted p-8 text-center">
+                <div class="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-card text-muted-foreground mb-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                 </div>
-                <h3 class="text-sm font-medium text-slate-300">No previous reports found</h3>
-                <p class="mt-1 text-xs text-slate-500 max-w-sm mx-auto">Ask a question above or select an analysis domain to generate your first AI synthesis.</p>
+                <h3 class="text-sm font-medium text-card-foreground">No previous reports found</h3>
+                <p class="mt-1 text-xs text-muted-foreground max-w-sm mx-auto">Ask a question above or select an analysis domain to generate your first AI synthesis.</p>
             </div>
         {% endif %}
     </div>
