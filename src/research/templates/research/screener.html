@@ -5,39 +5,39 @@
 <section class="mx-auto max-w-6xl space-y-8">
     <!-- Header -->
     <div class="space-y-2">
-        <div class="inline-flex items-center gap-2 rounded-full border border-brand-800/80 bg-brand-950/60 px-3.5 py-1 text-xs font-medium text-brand-400">
-            <span class="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse"></span>
+        <div class="inline-flex items-center gap-2 rounded-full border border-border bg-muted px-3.5 py-1 text-xs font-medium text-primary">
+            <span class="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
             <span>Discovery & Screening</span>
         </div>
-        <h1 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">IDX Equity Screener</h1>
-        <p class="max-w-3xl text-sm text-slate-400">
+        <h1 class="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">IDX Equity Screener</h1>
+        <p class="max-w-3xl text-sm text-muted-foreground">
             Filter companies using natural language inquiries or pre-configured valuation criteria across 900+ IDX listed tickers.
         </p>
     </div>
 
-    <!-- Search Bar & Filters (Flowbite Form) -->
-    <div class="rounded-xl border border-slate-800 bg-surface-900 p-5 sm:p-6 shadow-panel space-y-4">
+    <!-- Search Bar & Filters -->
+    <div class="rounded-lg border border-border bg-card p-5 sm:p-6 space-y-4">
         <form method="POST" action="{% url 'research:screener' %}" class="space-y-4">
             {% csrf_token %}
             <div>
-                <label for="screenerQuery" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Natural Language Screening Criteria</label>
+                <label for="screenerQuery" class="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Natural Language Screening Criteria</label>
                 <div class="flex flex-col gap-3 sm:flex-row">
                     <div class="relative flex-1">
-                        <div class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-500">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted-foreground">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </div>
-                        <input type="text" name="query" id="screenerQuery" value="{{ query }}" placeholder="Contoh: Perusahaan perbankan dengan ROE diatas 15% dan valuasi wajar..." class="block w-full pl-10 pr-10 py-2.5 text-sm text-white bg-surface-950 rounded-lg border border-slate-700 focus:ring-brand-500 focus:border-brand-500 placeholder-slate-500 transition-colors">
-                        <a href="{% url 'research:screener' %}" id="clearScreenerBtn" title="Reset filter" aria-label="Reset screening criteria" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white transition-colors {% if not query and not preset %}hidden{% endif %}">
-                            <span class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-surface-800 text-slate-400 hover:text-white transition-colors">
+                        <input type="text" name="query" id="screenerQuery" value="{{ query }}" placeholder="Contoh: Perusahaan perbankan dengan ROE diatas 15% dan valuasi wajar..." class="block w-full pl-10 pr-10 py-2.5 text-sm text-foreground bg-background rounded-lg border border-input focus:ring-2 focus:ring-ring focus:border-ring placeholder:text-muted-foreground/50 transition-colors">
+                        <a href="{% url 'research:screener' %}" id="clearScreenerBtn" title="Reset filter" aria-label="Reset screening criteria" class="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-colors {% if not query and not preset %}hidden{% endif %}">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
                             </span>
                         </a>
                     </div>
-                    <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 transition-colors">
+                    <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary-dark transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                         </svg>
@@ -48,10 +48,10 @@
 
             <!-- Preset Filters -->
             <div class="flex flex-wrap items-center gap-2 text-xs pt-1">
-                <span class="text-slate-400 font-medium text-[11px] mr-1">Quick Filters:</span>
-                <a href="{% url 'research:screener' %}?preset=banks" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors {% if preset == 'banks' %}border-brand-500 text-brand-400 bg-brand-950/40{% endif %}">Top Banks</a>
-                <a href="{% url 'research:screener' %}?preset=dividends" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors {% if preset == 'dividends' %}border-brand-500 text-brand-400 bg-brand-950/40{% endif %}">High Dividend Yield</a>
-                <a href="{% url 'research:screener' %}?preset=value" class="inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 text-slate-300 hover:bg-surface-800 hover:border-brand-500 hover:text-white transition-colors {% if preset == 'value' %}border-brand-500 text-brand-400 bg-brand-950/40{% endif %}">Undervalued Opportunities</a>
+                <span class="text-muted-foreground font-medium text-[11px] mr-1">Quick Filters:</span>
+                <a href="{% url 'research:screener' %}?preset=banks" class="inline-flex items-center rounded-full border border-border bg-background px-3 py-1 text-muted-foreground hover:bg-muted hover:border-primary hover:text-foreground transition-colors {% if preset == 'banks' %}border-primary text-primary bg-accent/20{% endif %}">Top Banks</a>
+                <a href="{% url 'research:screener' %}?preset=dividends" class="inline-flex items-center rounded-full border border-border bg-background px-3 py-1 text-muted-foreground hover:bg-muted hover:border-primary hover:text-foreground transition-colors {% if preset == 'dividends' %}border-primary text-primary bg-accent/20{% endif %}">High Dividend Yield</a>
+                <a href="{% url 'research:screener' %}?preset=value" class="inline-flex items-center rounded-full border border-border bg-background px-3 py-1 text-muted-foreground hover:bg-muted hover:border-primary hover:text-foreground transition-colors {% if preset == 'value' %}border-primary text-primary bg-accent/20{% endif %}">Undervalued Opportunities</a>
             </div>
         </form>
     </div>
@@ -59,18 +59,18 @@
     <!-- Results Section -->
     <div class="space-y-4">
         <div class="flex items-center justify-between">
-            <h2 class="text-base font-semibold text-white flex items-center gap-2">
+            <h2 class="text-base font-semibold text-foreground flex items-center gap-2">
                 <span>Screening Results</span>
                 {% if results %}
-                    <span class="rounded-full bg-surface-800 border border-slate-700 px-2.5 py-0.5 text-xs font-normal text-slate-300">{{ results|length }} matches found</span>
+                    <span class="rounded-full bg-muted border border-border px-2.5 py-0.5 text-xs font-normal text-muted-foreground">{{ results|length }} matches found</span>
                 {% endif %}
             </h2>
         </div>
 
         {% if results %}
-            <div class="overflow-x-auto rounded-xl border border-slate-800 bg-surface-900 shadow-panel">
-                <table class="w-full text-left text-sm text-slate-300">
-                    <thead class="border-b border-slate-800 bg-surface-950/80 text-xs font-semibold uppercase text-slate-400">
+            <div class="overflow-x-auto rounded-lg border border-border bg-card">
+                <table class="w-full text-left text-sm text-card-foreground">
+                    <thead class="border-b border-border bg-muted text-xs font-semibold uppercase text-muted-foreground">
                         <tr>
                             <th scope="col" class="px-6 py-4">Ticker</th>
                             <th scope="col" class="px-6 py-4">Company Name</th>
@@ -82,43 +82,43 @@
                             <th scope="col" class="px-6 py-4 text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-800">
+                    <tbody class="divide-y divide-border">
                         {% for item in results %}
-                            <tr class="hover:bg-surface-950/50 transition-colors">
-                                <td class="px-6 py-4 font-bold text-brand-400 font-mono text-sm">
-                                    <span class="rounded bg-brand-900/60 border border-brand-800 px-2 py-0.5" title="{{ item.symbol }}">{{ item.symbol|clean_ticker }}</span>
+                            <tr class="hover:bg-muted/50 transition-colors">
+                                <td class="px-6 py-4 font-bold text-primary font-mono text-sm">
+                                    <span class="rounded bg-muted border border-border px-2 py-0.5" title="{{ item.symbol }}">{{ item.symbol|clean_ticker }}</span>
                                 </td>
-                                <td class="px-6 py-4 font-medium text-white">{{ item.company_name }}</td>
-                                <td class="px-6 py-4 text-xs text-slate-400">{{ item.sub_sector|default:"General" }}</td>
+                                <td class="px-6 py-4 font-medium text-foreground">{{ item.company_name }}</td>
+                                <td class="px-6 py-4 text-xs text-muted-foreground">{{ item.sub_sector|default:"General" }}</td>
                                 <td class="px-6 py-4 font-mono text-xs" title="{{ item.market_cap|format_currency:False }}">
                                     {{ item.market_cap|format_currency }}
                                 </td>
                                 <td class="px-6 py-4 font-mono font-semibold">
                                     {% if item.pe_ratio and item.pe_ratio != "N/A" %}
-                                        <span class="text-slate-200">{{ item.pe_ratio|format_ratio }}</span>
+                                        <span class="text-foreground">{{ item.pe_ratio|format_ratio }}</span>
                                     {% else %}
-                                        <span class="text-slate-500">N/A</span>
+                                        <span class="text-muted-foreground">N/A</span>
                                     {% endif %}
                                 </td>
                                 <td class="px-6 py-4 font-mono font-semibold">
                                     {% if item.pb_ratio and item.pb_ratio != "N/A" %}
-                                        <span class="text-slate-200">{{ item.pb_ratio|format_ratio }}</span>
+                                        <span class="text-foreground">{{ item.pb_ratio|format_ratio }}</span>
                                     {% else %}
-                                        <span class="text-slate-500">N/A</span>
+                                        <span class="text-muted-foreground">N/A</span>
                                     {% endif %}
                                 </td>
                                 <td class="px-6 py-4 font-mono">
                                     {% if item.dividend_yield and item.dividend_yield != "N/A" %}
-                                        <span class="text-emerald-400 font-medium">{{ item.dividend_yield|format_percent }}</span>
+                                        <span class="text-primary font-medium">{{ item.dividend_yield|format_percent }}</span>
                                     {% else %}
-                                        <span class="text-slate-500">N/A</span>
+                                        <span class="text-muted-foreground">N/A</span>
                                     {% endif %}
                                 </td>
                                 <td class="px-6 py-4 text-right">
                                     <form method="POST" action="{% url 'research:workspace' %}" class="inline">
                                         {% csrf_token %}
                                         <input type="hidden" name="prompt" value="Analisis lengkap fundamental dan valuasi {{ item.symbol|clean_ticker }}">
-                                        <button type="submit" class="inline-flex items-center gap-1 rounded-md bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-brand-500 transition-colors">
+                                        <button type="submit" class="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground shadow-xs hover:bg-primary-dark transition-colors">
                                             <span>Analyze</span>
                                         </button>
                                     </form>
@@ -129,14 +129,14 @@
                 </table>
             </div>
         {% else %}
-            <div class="rounded-xl border border-dashed border-slate-800 bg-surface-900/40 p-12 text-center">
-                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-surface-800 text-slate-400 mb-3">
+            <div class="rounded-lg border border-dashed border-border bg-card/40 p-12 text-center">
+                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground mb-3">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                     </svg>
                 </div>
-                <h3 class="text-base font-semibold text-white">No screening results found</h3>
-                <p class="mt-1 text-sm text-slate-400 max-w-sm mx-auto">Try adjusting your natural language query or selecting one of the quick filter presets above.</p>
+                <h3 class="text-base font-semibold text-foreground">No screening results found</h3>
+                <p class="mt-1 text-sm text-muted-foreground max-w-sm mx-auto">Try adjusting your natural language query or selecting one of the quick filter presets above.</p>
             </div>
         {% endif %}
     </div>
