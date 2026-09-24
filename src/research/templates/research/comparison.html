@@ -2,41 +2,41 @@
 {% load research_tags %}
 {% block title %}Stock Comparison - IDX Copilot{% endblock %}
 {% block content %}
-<section class="mx-auto max-w-6xl space-y-8">
+<section class="mx-auto max-w-7xl space-y-8 px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
     <!-- Header -->
     <div class="space-y-2">
-        <div class="inline-flex items-center gap-2 rounded-full border border-brand-800/80 bg-brand-950/60 px-3.5 py-1 text-xs font-medium text-brand-400">
-            <span class="h-1.5 w-1.5 rounded-full bg-brand-500 animate-pulse"></span>
+        <div class="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-xs font-mono font-medium text-primary">
+            <span class="h-1.5 w-1.5 rounded-full bg-primary animate-pulse"></span>
             <span>Multi-Ticker Analysis</span>
         </div>
-        <h1 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">Compare IDX Stocks Side-by-Side</h1>
-        <p class="max-w-3xl text-sm text-slate-400">
+        <h1 class="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">Compare IDX Stocks Side-by-Side</h1>
+        <p class="max-w-3xl text-sm text-muted-foreground">
             Benchmark fundamental ratios, market valuation, foreign institutional accumulation, and price momentum across multiple companies.
         </p>
     </div>
 
     <!-- Comparison Input Form and Presets (Flowbite) -->
-    <div class="rounded-xl border border-slate-800 bg-surface-900 p-5 sm:p-6 shadow-panel">
+    <div class="rounded-lg border border-border bg-card p-5 sm:p-6 shadow-panel">
         <form method="GET" action="{% url 'research:comparison' %}" class="space-y-4">
             <div>
-                <label for="symbolsInput" class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Target Stock Symbols (comma-separated)</label>
+                <label for="symbolsInput" class="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Target Stock Symbols (comma-separated)</label>
                 <div class="flex flex-col gap-3 sm:flex-row">
                     <div class="relative flex-1">
-                        <div class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-500">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-muted-foreground">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                             </svg>
                         </div>
-                        <input type="text" name="symbols" id="symbolsInput" value="{{ symbols_param }}" placeholder="Up to 10 tickers, e.g. BBCA, BMRI, BBRI, BBNI" class="uppercase block w-full pl-10 pr-10 py-2.5 text-sm text-white bg-surface-950 rounded-lg border border-slate-700 focus:ring-brand-500 focus:border-brand-500 placeholder-slate-500 transition-colors">
-                        <a href="{% url 'research:comparison' %}" id="resetBtn" title="Reset symbols" aria-label="Reset symbols comparison" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white transition-colors {% if not symbols_param %}hidden{% endif %}">
-                            <span class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-surface-800 text-slate-400 hover:text-white transition-colors">
+                        <input type="text" name="symbols" id="symbolsInput" value="{{ symbols_param }}" placeholder="Up to 10 tickers, e.g. BBCA, BMRI, BBRI, BBNI" class="uppercase block w-full pl-10 pr-10 py-2.5 text-sm text-foreground bg-background rounded border border-input focus:ring-ring focus:border-ring placeholder-muted-foreground transition-colors">
+                        <a href="{% url 'research:comparison' %}" id="resetBtn" title="Reset symbols" aria-label="Reset symbols comparison" class="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground transition-colors {% if not symbols_param %}hidden{% endif %}">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
                             </span>
                         </a>
                     </div>
-                    <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 transition-colors">
+                    <button type="submit" class="inline-flex items-center justify-center gap-2 rounded bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary-dark transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                         </svg>
@@ -47,14 +47,14 @@
 
             <!-- Quick Presets -->
             <div class="flex flex-wrap items-center gap-2 text-xs pt-1">
-                <span class="text-slate-400 font-medium text-[11px] mr-1">Popular Presets:</span>
-                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="big-4-banks">Big 4 Banks</button>
-                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="telco-majors">Telco Majors</button>
-                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="astra-conglomerates">Astra Conglomerates</button>
-                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="mining">Mining Sector</button>
-                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="real-estate">Real Estate</button>
-                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-slate-700 bg-surface-950 px-3 py-1 hover:border-brand-500 hover:text-white transition-colors" data-preset="manufacturing">Manufacturing</button>
-                <a href="{% url 'research:comparison' %}?symbols=BBCA,BMRI,BBRI,BBNI,TLKM,ASII,ICBP,INDF,UNTR,ANTM" class="inline-flex items-center rounded-full border border-brand-800 bg-brand-950/40 px-3 py-1 text-brand-300 hover:border-brand-500 hover:text-white transition-colors">Top 10 IDX Blue Chips</a>
+                <span class="text-muted-foreground font-medium text-[11px] mr-1">Popular Presets:</span>
+                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 hover:border-primary hover:text-foreground transition-colors" data-preset="big-4-banks">Big 4 Banks</button>
+                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 hover:border-primary hover:text-foreground transition-colors" data-preset="telco-majors">Telco Majors</button>
+                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 hover:border-primary hover:text-foreground transition-colors" data-preset="astra-conglomerates">Astra Conglomerates</button>
+                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 hover:border-primary hover:text-foreground transition-colors" data-preset="mining">Mining Sector</button>
+                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 hover:border-primary hover:text-foreground transition-colors" data-preset="real-estate">Real Estate</button>
+                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 hover:border-primary hover:text-foreground transition-colors" data-preset="manufacturing">Manufacturing</button>
+                <button type="button" class="preset-btn inline-flex items-center rounded-full border border-border bg-secondary px-3 py-1 hover:border-primary hover:text-foreground transition-colors" data-preset="top-10-bluechips">Top 10 IDX Blue Chips</button>
             </div>
         </form>
     </div>
@@ -65,69 +65,69 @@
             <!-- Company Profile Cards -->
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 {% for stock in comparison_data %}
-                    <div class="rounded-xl border border-slate-800 bg-surface-900 p-5 space-y-3 shadow-panel hover:border-slate-700 transition-all">
+                    <div class="rounded-lg border border-border bg-card p-5 space-y-3 shadow-panel hover:bg-muted transition-colors">
                         <div class="flex items-center justify-between">
-                            <span class="rounded-md bg-brand-900/60 border border-brand-800 px-2.5 py-1 text-xs font-bold text-brand-400 font-mono">{{ stock.symbol|clean_ticker }}</span>
-                            <span class="text-xs text-slate-400">{{ stock.sub_sector }}</span>
+                            <span class="rounded bg-muted border border-border px-2.5 py-1 text-xs font-bold text-primary font-mono">{{ stock.symbol|clean_ticker }}</span>
+                            <span class="text-xs text-muted-foreground">{{ stock.sub_sector }}</span>
                         </div>
                         <div>
-                            <h3 class="text-base font-bold text-white line-clamp-1">{{ stock.company_name }}</h3>
-                            <p class="text-xs text-slate-400 line-clamp-1">{{ stock.industry }}</p>
+                            <h3 class="text-base font-bold text-card-foreground line-clamp-1">{{ stock.company_name }}</h3>
+                            <p class="text-xs text-muted-foreground line-clamp-1">{{ stock.industry }}</p>
                         </div>
-                        <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-xs">
-                            <span class="text-slate-400">Latest Price:</span>
-                            <span class="font-semibold text-white font-mono">{{ stock.last_price|format_currency:False }}</span>
+                        <div class="pt-2 border-t border-border flex items-center justify-between text-xs">
+                            <span class="text-muted-foreground">Latest Price:</span>
+                            <span class="font-semibold text-card-foreground font-mono">{{ stock.last_price|format_currency:False }}</span>
                         </div>
                     </div>
                 {% endfor %}
             </div>
 
             <!-- Detailed Metrics Comparison Table (Flowbite Table) -->
-            <div class="overflow-x-auto rounded-xl border border-slate-800 bg-surface-900 shadow-panel">
-                <table class="w-full text-left text-sm text-slate-300">
-                    <thead class="border-b border-slate-800 bg-surface-950/80 text-xs font-semibold uppercase text-slate-400">
+            <div class="overflow-x-auto rounded-lg border border-border bg-card shadow-panel">
+                <table class="w-full text-left text-sm text-muted-foreground">
+                    <thead class="border-b border-border bg-muted text-xs font-semibold uppercase text-muted-foreground">
                         <tr>
                             <th scope="col" class="px-6 py-4">Financial Metric</th>
                             {% for stock in comparison_data %}
-                                <th scope="col" class="px-6 py-4 text-brand-400 font-mono font-bold">{{ stock.symbol|clean_ticker }}</th>
+                                <th scope="col" class="px-6 py-4 text-primary font-mono font-bold">{{ stock.symbol|clean_ticker }}</th>
                             {% endfor %}
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-800">
-                        <tr class="hover:bg-surface-950/50 transition-colors">
-                            <td class="px-6 py-4 font-medium text-white">Market Capitalization</td>
+                    <tbody class="divide-y divide-border">
+                        <tr class="hover:bg-muted transition-colors">
+                            <td class="px-6 py-4 font-medium text-card-foreground">Market Capitalization</td>
                             {% for stock in comparison_data %}
                                 <td class="px-6 py-4 font-mono text-xs" title="{{ stock.market_cap|format_currency:False }}">{{ stock.market_cap|format_currency }}</td>
                             {% endfor %}
                         </tr>
-                        <tr class="hover:bg-surface-950/50 transition-colors">
-                            <td class="px-6 py-4 font-medium text-white">Price-to-Earnings (P/E)</td>
+                        <tr class="hover:bg-muted transition-colors">
+                            <td class="px-6 py-4 font-medium text-card-foreground">Price-to-Earnings (P/E)</td>
                             {% for stock in comparison_data %}
                                 <td class="px-6 py-4 font-mono font-semibold">{{ stock.pe_ratio|format_ratio }}</td>
                             {% endfor %}
                         </tr>
-                        <tr class="hover:bg-surface-950/50 transition-colors">
-                            <td class="px-6 py-4 font-medium text-white">Price-to-Book (P/B)</td>
+                        <tr class="hover:bg-muted transition-colors">
+                            <td class="px-6 py-4 font-medium text-card-foreground">Price-to-Book (P/B)</td>
                             {% for stock in comparison_data %}
                                 <td class="px-6 py-4 font-mono font-semibold">{{ stock.pb_ratio|format_ratio }}</td>
                             {% endfor %}
                         </tr>
-                        <tr class="hover:bg-surface-950/50 transition-colors">
-                            <td class="px-6 py-4 font-medium text-white">Dividend Yield</td>
+                        <tr class="hover:bg-muted transition-colors">
+                            <td class="px-6 py-4 font-medium text-card-foreground">Dividend Yield</td>
                             {% for stock in comparison_data %}
                                 <td class="px-6 py-4 font-mono">{{ stock.dividend_yield|format_percent }}</td>
                             {% endfor %}
                         </tr>
-                        <tr class="hover:bg-surface-950/50 transition-colors">
-                            <td class="px-6 py-4 font-medium text-white">Return on Equity (ROE)</td>
+                        <tr class="hover:bg-muted transition-colors">
+                            <td class="px-6 py-4 font-medium text-card-foreground">Return on Equity (ROE)</td>
                             {% for stock in comparison_data %}
                                 <td class="px-6 py-4 font-mono">{{ stock.roe|format_percent }}</td>
                             {% endfor %}
                         </tr>
-                        <tr class="hover:bg-surface-950/50 transition-colors">
-                            <td class="px-6 py-4 font-medium text-white">30-Day Net Foreign Flow</td>
+                        <tr class="hover:bg-muted transition-colors">
+                            <td class="px-6 py-4 font-medium text-card-foreground">30-Day Net Foreign Flow</td>
                             {% for stock in comparison_data %}
-                                <td class="px-6 py-4 font-mono text-xs {% if stock.net_foreign_30d > 0 %}text-emerald-400{% elif stock.net_foreign_30d < 0 %}text-red-400{% endif %}" title="{{ stock.net_foreign_30d|format_currency:False }}">
+                                <td class="px-6 py-4 font-mono text-xs {% if stock.net_foreign_30d > 0 %}text-primary{% elif stock.net_foreign_30d < 0 %}text-destructive{% endif %}" title="{{ stock.net_foreign_30d|format_currency:False }}">
                                     {{ stock.net_foreign_30d|format_currency }}
                                 </td>
                             {% endfor %}
@@ -137,15 +137,15 @@
             </div>
 
             <!-- Deep Copilot Synthesis Action -->
-            <div class="rounded-xl border border-brand-900/60 bg-brand-950/20 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-panel">
+            <div class="rounded-lg border border-primary/20 bg-primary/10 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-panel">
                 <div>
-                    <h3 class="text-base font-semibold text-white">Want a full AI thesis comparing these stocks?</h3>
-                    <p class="text-xs text-slate-400">Our LPU model will parse all quarterly financials, broker concentrations, and catalysts for a holistic verdict.</p>
+                    <h3 class="text-base font-semibold text-foreground">Want a full AI thesis comparing these stocks?</h3>
+                    <p class="text-xs text-muted-foreground">Our LPU model will parse all quarterly financials, broker concentrations, and catalysts for a holistic verdict.</p>
                 </div>
                 <form method="POST" action="{% url 'research:workspace' %}">
                     {% csrf_token %}
                     <input type="hidden" name="prompt" value="Bandingkan valuasi dan prospek fundamental antara {{ selected_symbols|join:' dan ' }}">
-                    <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-xs font-semibold text-white hover:bg-brand-500 transition-colors whitespace-nowrap shadow-sm">
+                    <button type="submit" class="inline-flex items-center gap-2 rounded bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground hover:bg-primary-dark transition-colors whitespace-nowrap shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
@@ -155,27 +155,27 @@
             </div>
         </div>
     {% else %}
-        <div class="rounded-xl border border-dashed border-slate-800 bg-surface-900/40 p-12 text-center">
-            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-surface-800 text-slate-400 mb-3">
+        <div class="rounded-lg border border-dashed border-border bg-muted p-12 text-center">
+            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-card text-muted-foreground mb-3">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
             </div>
-            <h3 class="text-base font-semibold text-white">Select stocks to compare</h3>
-            <p class="mt-1 text-sm text-slate-400 max-w-sm mx-auto">Add recommended tickers to search field, then click Compare Stocks.</p>
+            <h3 class="text-base font-semibold text-foreground">Select stocks to compare</h3>
+            <p class="mt-1 text-sm text-muted-foreground max-w-sm mx-auto">Add recommended tickers to search field, then click Compare Stocks.</p>
             <div class="mx-auto mt-6 max-w-4xl text-left">
-                <p class="mb-3 text-center text-xs font-semibold uppercase tracking-wider text-slate-400">Recommended IDX stocks</p>
+                <p class="mb-3 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground">Recommended IDX stocks</p>
                 <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-                    <button type="button" data-symbol="BBCA" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">BBCA</span><span class="text-xs text-slate-400">Bank Central Asia</span></button>
-                    <button type="button" data-symbol="BMRI" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">BMRI</span><span class="text-xs text-slate-400">Bank Mandiri</span></button>
-                    <button type="button" data-symbol="BBRI" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">BBRI</span><span class="text-xs text-slate-400">Bank Rakyat Indonesia</span></button>
-                    <button type="button" data-symbol="BBNI" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">BBNI</span><span class="text-xs text-slate-400">Bank Negara Indonesia</span></button>
-                    <button type="button" data-symbol="TLKM" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">TLKM</span><span class="text-xs text-slate-400">Telkom Indonesia</span></button>
-                    <button type="button" data-symbol="ASII" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">ASII</span><span class="text-xs text-slate-400">Astra International</span></button>
-                    <button type="button" data-symbol="ICBP" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">ICBP</span><span class="text-xs text-slate-400">Indofood CBP</span></button>
-                    <button type="button" data-symbol="INDF" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">INDF</span><span class="text-xs text-slate-400">Indofood Sukses Makmur</span></button>
-                    <button type="button" data-symbol="UNTR" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">UNTR</span><span class="text-xs text-slate-400">United Tractors</span></button>
-                    <button type="button" data-symbol="ANTM" class="stock-recommendation rounded-lg border border-slate-700 bg-surface-950 px-3 py-3 text-left hover:border-brand-500"><span class="block font-mono text-sm font-bold text-brand-400">ANTM</span><span class="text-xs text-slate-400">Aneka Tambang</span></button>
+                    <button type="button" data-symbol="BBCA" class="stock-recommendation rounded-lg border border-border bg-card px-3 py-3 text-left hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><span class="block font-mono text-sm font-bold text-primary">BBCA</span><span class="text-xs text-muted-foreground">Bank Central Asia</span></button>
+                    <button type="button" data-symbol="BMRI" class="stock-recommendation rounded-lg border border-border bg-card px-3 py-3 text-left hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><span class="block font-mono text-sm font-bold text-primary">BMRI</span><span class="text-xs text-muted-foreground">Bank Mandiri</span></button>
+                    <button type="button" data-symbol="BBRI" class="stock-recommendation rounded-lg border border-border bg-card px-3 py-3 text-left hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><span class="block font-mono text-sm font-bold text-primary">BBRI</span><span class="text-xs text-muted-foreground">Bank Rakyat Indonesia</span></button>
+                    <button type="button" data-symbol="BBNI" class="stock-recommendation rounded-lg border border-border bg-card px-3 py-3 text-left hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><span class="block font-mono text-sm font-bold text-primary">BBNI</span><span class="text-xs text-muted-foreground">Bank Negara Indonesia</span></button>
+                    <button type="button" data-symbol="TLKM" class="stock-recommendation rounded-lg border border-border bg-card px-3 py-3 text-left hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><span class="block font-mono text-sm font-bold text-primary">TLKM</span><span class="text-xs text-muted-foreground">Telkom Indonesia</span></button>
+                    <button type="button" data-symbol="ASII" class="stock-recommendation rounded-lg border border-border bg-card px-3 py-3 text-left hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><span class="block font-mono text-sm font-bold text-primary">ASII</span><span class="text-xs text-muted-foreground">Astra International</span></button>
+                    <button type="button" data-symbol="ICBP" class="stock-recommendation rounded-lg border border-border bg-card px-3 py-3 text-left hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><span class="block font-mono text-sm font-bold text-primary">ICBP</span><span class="text-xs text-muted-foreground">Indofood CBP</span></button>
+                    <button type="button" data-symbol="INDF" class="stock-recommendation rounded-lg border border-border bg-card px-3 py-3 text-left hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><span class="block font-mono text-sm font-bold text-primary">INDF</span><span class="text-xs text-muted-foreground">Indofood Sukses Makmur</span></button>
+                    <button type="button" data-symbol="UNTR" class="stock-recommendation rounded-lg border border-border bg-card px-3 py-3 text-left hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><span class="block font-mono text-sm font-bold text-primary">UNTR</span><span class="text-xs text-muted-foreground">United Tractors</span></button>
+                    <button type="button" data-symbol="ANTM" class="stock-recommendation rounded-lg border border-border bg-card px-3 py-3 text-left hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><span class="block font-mono text-sm font-bold text-primary">ANTM</span><span class="text-xs text-muted-foreground">Aneka Tambang</span></button>
                 </div>
             </div>
         </div>
@@ -189,7 +189,8 @@
         'mining': ['ANTM', 'TINS', 'INCO', 'ADRO'],
         'telecom': ['TLKM', 'EXCL', 'ISAT'],
         'real-estate': ['BMTR', 'BSDE', 'ELTY', 'PWON'],
-        'manufacturing': ['ASII', 'UNTR', 'INTP', 'SMSM']
+        'manufacturing': ['ASII', 'UNTR', 'INTP', 'SMSM'],
+        'top-10-bluechips': ['BBCA', 'BMRI', 'BBRI', 'BBNI', 'TLKM', 'ASII', 'ICBP', 'INDF', 'UNTR', 'ANTM']
     };
 
     const updatePresetStates = () => {
@@ -217,11 +218,11 @@
                                presetSymbols.every(sym => currentSet.has(sym));
             
             if (isSelected) {
-                btn.classList.add('border-brand-500', 'bg-brand-950/40', 'text-brand-300');
-                btn.classList.remove('border-slate-700', 'bg-surface-950');
+                btn.classList.add('border-primary', 'bg-primary/10', 'text-primary');
+                btn.classList.remove('border-border', 'bg-secondary');
             } else {
-                btn.classList.remove('border-brand-500', 'bg-brand-950/40', 'text-brand-300');
-                btn.classList.add('border-slate-700', 'bg-surface-950');
+                btn.classList.remove('border-primary', 'bg-primary/10', 'text-primary');
+                btn.classList.add('border-border', 'bg-secondary');
             }
         });
     };
