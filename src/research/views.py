@@ -328,6 +328,41 @@ def dashboard(request):
     watchlist_items = WatchlistItem.objects.all()[:6]
     saved_reports = SavedReport.objects.all()[:5]
 
+    # Enrich watchlist items with company data
+    enriched_watchlist = []
+    try:
+        # Fetch all companies data in one call
+        companies_resp = sectors_api.get_screener(limit=100)
+        companies_by_symbol = {}
+        if isinstance(companies_resp, dict):
+            results = companies_resp.get("results", [])
+            for c in results:
+                sym = c.get("symbol", "").replace(".JK", "")
+                companies_by_symbol[sym] = c
+    except Exception as e:
+        logger.warning(f"Failed to fetch companies for watchlist: {e}")
+
+    for item in watchlist_items:
+        sym = item.symbol
+        # Get company data from screener API or mock fallback
+        company_data = companies_by_symbol.get(sym, {})
+        data = {
+            "id": item.pk,
+            "symbol": sym,
+            "company_name": company_data.get("company_name") or f"{sym} Tbk",
+            "last_price": company_data.get("price") or None,
+            "change_pct": float(company_data.get("change_pct") or 0.0),
+        }
+        # If no price from screener, try from daily data
+        if data["last_price"] is None:
+            try:
+                daily = sectors_api.get_daily(sym, "2026-09-20", "2026-09-24")
+                if daily and isinstance(daily, list) and len(daily) > 0:
+                    data["last_price"] = daily[-1].get("close")
+            except Exception:
+                pass
+        enriched_watchlist.append(data)
+
     try:
         raw_movers = sectors_api.get_top_changes(
             classifications="top_gainers",
@@ -412,7 +447,7 @@ def dashboard(request):
             "watchlist_count": WatchlistItem.objects.count(),
             "top_movers": top_movers[:5],
             "most_traded": most_traded[:5],
-            "watchlist_items": watchlist_items,
+            "watchlist_items": enriched_watchlist,
             "saved_reports": saved_reports,
         },
     )
