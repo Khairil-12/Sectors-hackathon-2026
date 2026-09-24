@@ -1,75 +1,58 @@
 <!-- Desktop Sidebar Navigation (Flowbite) -->
-<aside id="desktop-sidebar" class="hidden lg:flex w-64 shrink-0 flex-col justify-between border-r border-slate-800 bg-surface-900 p-5 h-screen sticky top-0 overflow-y-auto self-start" aria-label="Sidebar">
+<aside id="desktop-sidebar" class="hidden lg:flex w-64 shrink-0 flex-col justify-between border-r border-sidebar-border bg-sidebar p-5 h-screen sticky top-0 overflow-y-auto self-start" aria-label="Sidebar">
     <div class="space-y-6">
         <!-- Brand Header -->
-        <a href="{% url 'research:workspace' %}" class="flex items-center gap-2.5 text-xl font-bold text-brand-400">
-            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-brand-950 border border-brand-800 text-brand-400">
-                <span class="h-2.5 w-2.5 rounded-full bg-brand-500 animate-pulse"></span>
+        <a href="{% url 'research:workspace' %}" class="flex items-center gap-2.5 text-xl font-bold text-primary">
+            <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-card border border-border text-primary">
+                <span class="h-2.5 w-2.5 rounded-full bg-primary animate-pulse"></span>
             </div>
             <div>
-                <span class="tracking-tight text-white">IDX</span> <span class="text-brand-400">Copilot</span>
+                <span class="tracking-tight text-sidebar-foreground">IDX</span> <span class="text-primary">Copilot</span>
             </div>
         </a>
 
         <!-- Navigation Menu -->
         <div class="space-y-1">
-            <span class="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 block mb-2">Research Tools</span>
+            <span class="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block mb-2">Research Tools</span>
             
-            <a href="{% url 'research:workspace' %}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'workspace' %}bg-brand-600 text-white shadow-sm{% else %}text-slate-300 hover:bg-surface-950 hover:text-white{% endif %}">
-                <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'workspace' %}text-white{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="{% url 'research:workspace' %}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'workspace' %}bg-sidebar-primary text-sidebar-primary-foreground shadow-sm font-semibold{% else %}text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground{% endif %}">
+                <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'workspace' %}text-sidebar-primary-foreground{% else %}text-muted-foreground{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                 </svg>
                 <span>New Analysis</span>
             </a>
 
-            <a href="{% url 'research:dashboard' %}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'dashboard' %}bg-brand-600 text-white shadow-sm{% else %}text-slate-300 hover:bg-surface-950 hover:text-white{% endif %}">
-                <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'dashboard' %}text-white{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+            <a href="{% url 'research:dashboard' %}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'dashboard' %}bg-sidebar-primary text-sidebar-primary-foreground shadow-sm font-semibold{% else %}text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground{% endif %}">
+                <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'dashboard' %}text-sidebar-primary-foreground{% else %}text-muted-foreground{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
                 </svg>
-                <span>Dashboard</span>
+                <span>Market</span>
             </a>
 
-            <a href="{% url 'research:comparison' %}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'comparison' %}bg-brand-600 text-white shadow-sm{% else %}text-slate-300 hover:bg-surface-950 hover:text-white{% endif %}">
-                <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'comparison' %}text-white{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="{% url 'research:comparison' %}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'comparison' %}bg-sidebar-primary text-sidebar-primary-foreground shadow-sm font-semibold{% else %}text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground{% endif %}">
+                <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'comparison' %}text-sidebar-primary-foreground{% else %}text-muted-foreground{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                 </svg>
                 <span>Compare Stocks</span>
             </a>
 
-            <a href="{% url 'research:screener' %}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'screener' %}bg-brand-600 text-white shadow-sm{% else %}text-slate-300 hover:bg-surface-950 hover:text-white{% endif %}">
-                <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'screener' %}text-white{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="{% url 'research:screener' %}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'screener' %}bg-sidebar-primary text-sidebar-primary-foreground shadow-sm font-semibold{% else %}text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground{% endif %}">
+                <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'screener' %}text-sidebar-primary-foreground{% else %}text-muted-foreground{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                 </svg>
                 <span>Screener</span>
             </a>
 
-            <div class="pt-4 mt-4 border-t border-slate-800">
-                <span class="px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 block mb-2">Portfolio & History</span>
+            <div class="pt-4 mt-4 border-t border-sidebar-border">
+                <span class="px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground block mb-2">Portfolio & History</span>
 
-                <a href="{% url 'research:watchlist' %}" class="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'watchlist' %}bg-brand-600 text-white shadow-sm{% else %}text-slate-300 hover:bg-surface-950 hover:text-white{% endif %}">
-                    <div class="flex items-center gap-3">
-                        <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'watchlist' %}text-white{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
-                        </svg>
-                        <span>Watchlist</span>
-                    </div>
-                </a>
-
-                <a href="{% url 'research:saved_reports' %}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'saved_reports' %}bg-brand-600 text-white shadow-sm{% else %}text-slate-300 hover:bg-surface-950 hover:text-white{% endif %}">
-                    <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'saved_reports' %}text-white{% else %}text-slate-400{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="{% url 'research:saved_reports' %}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors {% if request.resolver_match.url_name == 'saved_reports' %}bg-sidebar-primary text-sidebar-primary-foreground shadow-sm font-semibold{% else %}text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground{% endif %}">
+                    <svg class="w-5 h-5 {% if request.resolver_match.url_name == 'saved_reports' %}text-sidebar-primary-foreground{% else %}text-muted-foreground{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
                     <span>Saved Reports</span>
                 </a>
             </div>
-        </div>
-    </div>
-
-    <!-- Sidebar Bottom Shortcuts -->
-    <div class="pt-4 border-t border-slate-800">
-        <div class="flex items-center justify-between text-[11px] text-slate-500 px-1">
-            <span>Send Shortcut</span>
-            <kbd class="px-1.5 py-0.5 text-[10px] font-semibold text-slate-300 bg-surface-800 border border-slate-700 rounded">Ctrl+Enter</kbd>
         </div>
     </div>
 </aside>
