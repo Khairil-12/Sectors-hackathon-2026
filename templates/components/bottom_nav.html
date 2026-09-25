@@ -1,12 +1,6 @@
 <!-- Flowbite Mobile Bottom Navigation (1-Thumb Quick Access) -->
 <div class="fixed bottom-0 left-0 z-30 w-full h-16 bg-surface-900/95 backdrop-blur border-t border-slate-800 sm:hidden">
     <div class="grid h-full max-w-lg grid-cols-5 mx-auto font-medium">
-        <a href="{% url 'research:workspace' %}" class="inline-flex flex-col items-center justify-center px-2 hover:bg-surface-800 group transition-colors {% if request.resolver_match.url_name == 'workspace' %}text-brand-400{% else %}text-slate-400{% endif %}">
-            <svg class="w-5 h-5 mb-1 {% if request.resolver_match.url_name == 'workspace' %}text-brand-400{% else %}text-slate-400 group-hover:text-white{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-            </svg>
-            <span class="text-[10px]">Ask AI</span>
-        </a>
         <a href="{% url 'research:dashboard' %}" class="inline-flex flex-col items-center justify-center px-2 hover:bg-surface-800 group transition-colors {% if request.resolver_match.url_name == 'dashboard' %}text-brand-400{% else %}text-slate-400{% endif %}">
             <svg class="w-5 h-5 mb-1 {% if request.resolver_match.url_name == 'dashboard' %}text-brand-400{% else %}text-slate-400 group-hover:text-white{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
@@ -18,6 +12,12 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
             </svg>
             <span class="text-[10px]">Compare</span>
+        </a>
+        <a href="{% url 'research:workspace' %}" class="inline-flex flex-col items-center justify-center px-2 hover:bg-surface-800 group transition-colors {% if request.resolver_match.url_name == 'workspace' %}text-brand-400{% else %}text-slate-400{% endif %}">
+            <svg class="w-5 h-5 mb-1 {% if request.resolver_match.url_name == 'workspace' %}text-brand-400{% else %}text-slate-400 group-hover:text-white{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            <span class="text-[10px]">Ask AI</span>
         </a>
         <a href="{% url 'research:screener' %}" class="inline-flex flex-col items-center justify-center px-2 hover:bg-surface-800 group transition-colors {% if request.resolver_match.url_name == 'screener' %}text-brand-400{% else %}text-slate-400{% endif %}">
             <svg class="w-5 h-5 mb-1 {% if request.resolver_match.url_name == 'screener' %}text-brand-400{% else %}text-slate-400 group-hover:text-white{% endif %}" fill="none" stroke="currentColor" viewBox="0 0 24 24">

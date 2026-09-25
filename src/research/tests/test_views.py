@@ -205,9 +205,37 @@ class ViewRoutingTests(TestCase):
         response = self.client.get("/dashboard/")
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Market Dashboard")
-        self.assertContains(response, "Watchlist Tracked")
+        self.assertContains(response, "My Watchlist")
         self.assertContains(response, "BBCA")
         self.assertContains(response, "BBRI")
+
+    @patch("research.services.sectors_api.get_company_report")
+    @patch("research.services.sectors_api.get_top_changes")
+    @patch("research.services.sectors_api.get_most_traded")
+    def test_dashboard_view_displays_real_company_name_and_percentage(self, mock_traded, mock_movers, mock_rep):
+        mock_movers.return_value = []
+        mock_traded.return_value = []
+        mock_rep.return_value = {
+            "symbol": "BBCA.JK",
+            "company_name": "PT Bank Central Asia Tbk.",
+            "overview": {
+                "symbol": "BBCA.JK",
+                "company_name": "PT Bank Central Asia Tbk.",
+                "last_close_price": 9975,
+                "daily_close_change": 0.0179,
+            },
+            "valuation": {
+                "last_close_price": 9975,
+                "daily_close_change": 0.0179,
+            },
+        }
+        response = self.client.get("/dashboard/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "PT Bank Central Asia Tbk.")
+        self.assertContains(response, "+1.79%")
+        self.assertContains(response, "9,975")
+        # Verify remove button is present in the watchlist card
+        self.assertContains(response, f"/watchlist/remove/{self.sample_watchlist.pk}/")
 
     @patch("research.services.sectors_api.get_top_changes")
     @patch("research.services.sectors_api.get_most_traded")
@@ -240,26 +268,29 @@ class ViewRoutingTests(TestCase):
         self.assertContains(response, "BUMI")
         self.assertContains(response, "20.00%")
 
-    @patch("research.services.sectors_api.get_company_report")
-    def test_watchlist_view_get(self, mock_comp_rep):
-        mock_comp_rep.return_value = {
-            "overview": {"company_name": "Bank Central Asia Tbk"},
-            "valuation": {"pe_ratio": 23.4},
-        }
+    def test_watchlist_view_redirects_to_dashboard(self):
         response = self.client.get("/watchlist/")
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Watchlist")
-        self.assertContains(response, "BBCA")
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, "/dashboard/")
 
     def test_watchlist_add_valid_symbol(self):
         response = self.client.post("/watchlist/add/", {"symbol": "TLKM"})
         self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, "/dashboard/")
         self.assertTrue(WatchlistItem.objects.filter(symbol="TLKM").exists())
 
-    def test_watchlist_remove_action(self):
+    def test_watchlist_remove_action_standard_post(self):
         item_id = self.sample_watchlist.pk
         response = self.client.post(f"/watchlist/remove/{item_id}/")
         self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, "/dashboard/")
+        self.assertFalse(WatchlistItem.objects.filter(pk=item_id).exists())
+
+    def test_watchlist_remove_action_htmx(self):
+        item_id = self.sample_watchlist.pk
+        response = self.client.post(f"/watchlist/remove/{item_id}/", HTTP_HX_REQUEST="true")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b"")
         self.assertFalse(WatchlistItem.objects.filter(pk=item_id).exists())
 
     def test_saved_reports_view_get(self):

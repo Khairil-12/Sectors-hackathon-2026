@@ -66,13 +66,23 @@
                                 </div>
                             </td>
                             <td class="py-3 px-4 text-right">
-                                <form method="POST" action="{% url 'research:workspace' %}" class="inline">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="prompt" value="Analisis performa dan valuasi {{ item.symbol|clean_ticker }}">
-                                    <button type="submit" class="rounded bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground hover:bg-muted transition-colors">
-                                        Analyze
-                                    </button>
-                                </form>
+                                <div class="flex items-center justify-end gap-2">
+                                    <form method="POST" action="{% url 'research:workspace' %}" class="inline">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="prompt" value="Analisis performa dan valuasi {{ item.symbol|clean_ticker }}">
+                                        <button type="submit" class="rounded bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground hover:bg-muted transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                                            Analyze
+                                        </button>
+                                    </form>
+                                    <form method="POST" action="{% url 'research:watchlist_remove' item.id %}" hx-post="{% url 'research:watchlist_remove' item.id %}" hx-target="closest tr" hx-swap="outerHTML" class="inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="rounded p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-destructive" title="Remove {{ item.symbol|clean_ticker }} from watchlist" aria-label="Remove {{ item.symbol|clean_ticker }} from watchlist">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     {% empty %}

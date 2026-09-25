@@ -1,5 +1,7 @@
+import concurrent.futures
 import json
 import logging
+from datetime import date, timedelta
 from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
@@ -322,46 +324,70 @@ def screener(request):
     )
 
 
+def _enrich_watchlist_item(item: WatchlistItem) -> dict:
+    sym = item.symbol
+    company_name = f"{sym} Tbk"
+    last_price = None
+    change_pct = 0.0
+
+    try:
+        rep = sectors_api.get_company_report(sym)
+        if isinstance(rep, dict):
+            ov = rep.get("overview", {}) if isinstance(rep.get("overview"), dict) else {}
+            val = rep.get("valuation", {}) if isinstance(rep.get("valuation"), dict) else {}
+
+            c_name = rep.get("company_name") or ov.get("company_name")
+            if c_name:
+                company_name = c_name
+
+            price = ov.get("last_close_price") or val.get("last_close_price")
+            if price is not None:
+                last_price = price
+
+            raw_change = ov.get("daily_close_change") if ov.get("daily_close_change") is not None else val.get("daily_close_change")
+            if raw_change is not None:
+                chg = float(raw_change)
+                change_pct = chg * 100.0 if abs(chg) <= 1.0 and chg != 0 else chg
+    except Exception as exc:
+        logger.warning("Failed to fetch company report for watchlist item %s: %s", sym, exc)
+
+    # Dynamic fallback to daily transactions if price or change is still missing
+    if last_price is None or change_pct == 0.0:
+        try:
+            today = date.today()
+            start = today - timedelta(days=14)
+            daily = sectors_api.get_daily(sym, start.isoformat(), today.isoformat())
+            if isinstance(daily, list) and len(daily) > 0:
+                if last_price is None:
+                    last_price = daily[-1].get("close")
+                if change_pct == 0.0 and len(daily) >= 2:
+                    c_today = daily[-1].get("close")
+                    c_prev = daily[-2].get("close")
+                    if c_today and c_prev and float(c_prev) > 0:
+                        change_pct = ((float(c_today) - float(c_prev)) / float(c_prev)) * 100.0
+        except Exception as exc:
+            logger.warning("Failed to fetch daily fallback for watchlist item %s: %s", sym, exc)
+
+    return {
+        "id": item.pk,
+        "symbol": sym,
+        "company_name": company_name,
+        "last_price": last_price,
+        "change_pct": round(change_pct, 2),
+    }
+
+
 def dashboard(request):
     top_movers = []
     most_traded = []
-    watchlist_items = WatchlistItem.objects.all()[:6]
+    watchlist_items = list(WatchlistItem.objects.all().order_by("-added_at"))
     saved_reports = SavedReport.objects.all()[:5]
 
-    # Enrich watchlist items with company data
+    # Enrich watchlist items with real company name, price, and change_pct
     enriched_watchlist = []
-    try:
-        # Fetch all companies data in one call
-        companies_resp = sectors_api.get_screener(limit=100)
-        companies_by_symbol = {}
-        if isinstance(companies_resp, dict):
-            results = companies_resp.get("results", [])
-            for c in results:
-                sym = c.get("symbol", "").replace(".JK", "")
-                companies_by_symbol[sym] = c
-    except Exception as e:
-        logger.warning(f"Failed to fetch companies for watchlist: {e}")
-
-    for item in watchlist_items:
-        sym = item.symbol
-        # Get company data from screener API or mock fallback
-        company_data = companies_by_symbol.get(sym, {})
-        data = {
-            "id": item.pk,
-            "symbol": sym,
-            "company_name": company_data.get("company_name") or f"{sym} Tbk",
-            "last_price": company_data.get("price") or None,
-            "change_pct": float(company_data.get("change_pct") or 0.0),
-        }
-        # If no price from screener, try from daily data
-        if data["last_price"] is None:
-            try:
-                daily = sectors_api.get_daily(sym, "2026-09-20", "2026-09-24")
-                if daily and isinstance(daily, list) and len(daily) > 0:
-                    data["last_price"] = daily[-1].get("close")
-            except Exception:
-                pass
-        enriched_watchlist.append(data)
+    if watchlist_items:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(watchlist_items), 8)) as executor:
+            enriched_watchlist = list(executor.map(_enrich_watchlist_item, watchlist_items))
 
     try:
         raw_movers = sectors_api.get_top_changes(
@@ -454,35 +480,8 @@ def dashboard(request):
 
 
 def watchlist(request):
-    watchlist_items = WatchlistItem.objects.all()
-    enriched_items = []
-
-    for item in watchlist_items:
-        data = {
-            "id": item.pk,
-            "symbol": item.symbol,
-            "company_name": f"{item.symbol} Tbk",
-            "price": "N/A",
-            "pe_ratio": "N/A",
-            "added_at": item.added_at,
-        }
-        try:
-            rep = sectors_api.get_company_report(item.symbol)
-            if isinstance(rep, dict):
-                data["company_name"] = rep.get("overview", {}).get("company_name", data["company_name"])
-                data["pe_ratio"] = rep.get("valuation", {}).get("pe_ratio", "N/A")
-        except Exception:
-            pass
-        enriched_items.append(data)
-
-    return render(
-        request,
-        "research/watchlist.html",
-        {
-            "form": WatchlistAddForm(),
-            "watchlist_items": enriched_items,
-        },
-    )
+    """Watchlist has been completely moved to the Market Dashboard page."""
+    return redirect("research:dashboard")
 
 
 @require_http_methods(["POST"])
@@ -496,9 +495,7 @@ def watchlist_add(request):
         for error in form.errors.values():
             messages.error(request, error[0])
 
-    if request.headers.get("HX-Request"):
-        return redirect("research:watchlist")
-    return redirect("research:watchlist")
+    return redirect("research:dashboard")
 
 
 @require_http_methods(["POST", "DELETE"])
@@ -508,7 +505,7 @@ def watchlist_remove(request, id):
     if request.headers.get("HX-Request"):
         return HttpResponse("")
     messages.success(request, "Removed from watchlist.")
-    return redirect("research:watchlist")
+    return redirect("research:dashboard")
 
 
 def saved_reports(request):

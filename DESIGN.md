@@ -282,7 +282,6 @@ Shadows utilize the CSS variables as blur radius on `var(--card)` with low opaci
 │  • Screener                    │  [Metric Grid: Valuation / Foreign Flow]   │
 │                                │                                            │
 │  PORTFOLIO & HISTORY           │  [Bullish Drivers vs Bearish Risks Grid]   │
-│  • Watchlist                   │                                            │
 │  • Saved Reports               │  [Flow Divergence & Histogram Charts]      │
 │                                │                                            │
 │  [Ctrl+Enter Shortcut Helper]  │  [Verified Data Citations & Follow-up Q&A] │

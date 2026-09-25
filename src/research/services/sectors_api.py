@@ -42,6 +42,8 @@ def _cache_key(endpoint: str, params: dict[str, Any]) -> str:
 # Built-in benchmark fallback dataset for offline testing and demo resilience
 _MOCK_COMPANIES = {
     "BBCA": {
+        "symbol": "BBCA.JK",
+        "company_name": "Bank Central Asia Tbk",
         "overview": {
             "symbol": "BBCA.JK",
             "company_name": "Bank Central Asia Tbk",
@@ -49,6 +51,8 @@ _MOCK_COMPANIES = {
             "sub_sector": "Banks",
             "market_cap": 1_230_000_000_000_000,
             "listing_date": "2000-05-31",
+            "last_close_price": 9975,
+            "daily_close_change": 0.0179,
         },
         "valuation": {
             "pe_ratio": 23.4,
@@ -57,6 +61,8 @@ _MOCK_COMPANIES = {
             "dividend_yield": 0.024,
             "roe": 0.215,
             "roa": 0.038,
+            "last_close_price": 9975,
+            "daily_close_change": 0.0179,
         },
         "financials": {
             "revenue": 98_500_000_000_000,
@@ -65,6 +71,8 @@ _MOCK_COMPANIES = {
         },
     },
     "BMRI": {
+        "symbol": "BMRI.JK",
+        "company_name": "Bank Mandiri (Persero) Tbk",
         "overview": {
             "symbol": "BMRI.JK",
             "company_name": "Bank Mandiri (Persero) Tbk",
@@ -72,6 +80,8 @@ _MOCK_COMPANIES = {
             "sub_sector": "Banks",
             "market_cap": 640_000_000_000_000,
             "listing_date": "2003-07-14",
+            "last_close_price": 6850,
+            "daily_close_change": 0.0224,
         },
         "valuation": {
             "pe_ratio": 11.8,
@@ -80,6 +90,8 @@ _MOCK_COMPANIES = {
             "dividend_yield": 0.051,
             "roe": 0.198,
             "roa": 0.027,
+            "last_close_price": 6850,
+            "daily_close_change": 0.0224,
         },
         "financials": {
             "revenue": 120_000_000_000_000,
@@ -88,6 +100,8 @@ _MOCK_COMPANIES = {
         },
     },
     "BBRI": {
+        "symbol": "BBRI.JK",
+        "company_name": "Bank Rakyat Indonesia (Persero) Tbk",
         "overview": {
             "symbol": "BBRI.JK",
             "company_name": "Bank Rakyat Indonesia (Persero) Tbk",
@@ -95,6 +109,8 @@ _MOCK_COMPANIES = {
             "sub_sector": "Banks",
             "market_cap": 750_000_000_000_000,
             "listing_date": "2003-11-10",
+            "last_close_price": 4980,
+            "daily_close_change": -0.0080,
         },
         "valuation": {
             "pe_ratio": 12.5,
@@ -103,6 +119,8 @@ _MOCK_COMPANIES = {
             "dividend_yield": 0.062,
             "roe": 0.201,
             "roa": 0.031,
+            "last_close_price": 4980,
+            "daily_close_change": -0.0080,
         },
         "financials": {
             "revenue": 145_000_000_000_000,
@@ -111,6 +129,8 @@ _MOCK_COMPANIES = {
         },
     },
     "TLKM": {
+        "symbol": "TLKM.JK",
+        "company_name": "Telkom Indonesia (Persero) Tbk",
         "overview": {
             "symbol": "TLKM.JK",
             "company_name": "Telkom Indonesia (Persero) Tbk",
@@ -118,6 +138,8 @@ _MOCK_COMPANIES = {
             "sub_sector": "Telecommunication",
             "market_cap": 290_000_000_000_000,
             "listing_date": "1995-11-14",
+            "last_close_price": 3020,
+            "daily_close_change": 0.0203,
         },
         "valuation": {
             "pe_ratio": 13.9,
@@ -126,6 +148,8 @@ _MOCK_COMPANIES = {
             "dividend_yield": 0.058,
             "roe": 0.185,
             "roa": 0.092,
+            "last_close_price": 3020,
+            "daily_close_change": 0.0203,
         },
         "financials": {
             "revenue": 149_000_000_000_000,
@@ -134,6 +158,8 @@ _MOCK_COMPANIES = {
         },
     },
     "ASII": {
+        "symbol": "ASII.JK",
+        "company_name": "Astra International Tbk",
         "overview": {
             "symbol": "ASII.JK",
             "company_name": "Astra International Tbk",
@@ -141,6 +167,8 @@ _MOCK_COMPANIES = {
             "sub_sector": "Automobiles & Components",
             "market_cap": 205_000_000_000_000,
             "listing_date": "1990-04-04",
+            "last_close_price": 5050,
+            "daily_close_change": 0.0050,
         },
         "valuation": {
             "pe_ratio": 6.8,
@@ -149,6 +177,8 @@ _MOCK_COMPANIES = {
             "dividend_yield": 0.084,
             "roe": 0.165,
             "roa": 0.078,
+            "last_close_price": 5050,
+            "daily_close_change": 0.0050,
         },
         "financials": {
             "revenue": 316_000_000_000_000,
@@ -166,10 +196,29 @@ def _get_mock_fallback(endpoint: str, params: dict[str, Any]) -> dict | list | N
     if "/v2/company/report/" in endpoint:
         symbol = endpoint.split("/")[4].upper()
         if symbol in _MOCK_COMPANIES:
-            return _MOCK_COMPANIES[symbol]
+            mock = dict(_MOCK_COMPANIES[symbol])
+            mock["symbol"] = f"{symbol}.JK"
+            mock["company_name"] = mock.get("company_name") or mock["overview"]["company_name"]
+            return mock
         return {
-            "overview": {"symbol": f"{symbol}.JK", "company_name": f"{symbol} Tbk", "industry": "General", "sub_sector": "General", "market_cap": 50_000_000_000_000},
-            "valuation": {"pe_ratio": 15.0, "pb_ratio": 1.5, "dividend_yield": 0.03},
+            "symbol": f"{symbol}.JK",
+            "company_name": f"{symbol} Tbk",
+            "overview": {
+                "symbol": f"{symbol}.JK",
+                "company_name": f"{symbol} Tbk",
+                "industry": "General",
+                "sub_sector": "General",
+                "market_cap": 50_000_000_000_000,
+                "last_close_price": 3250,
+                "daily_close_change": 0.0125,
+            },
+            "valuation": {
+                "pe_ratio": 15.0,
+                "pb_ratio": 1.5,
+                "dividend_yield": 0.03,
+                "last_close_price": 3250,
+                "daily_close_change": 0.0125,
+            },
             "financials": {"revenue": 10_000_000_000_000, "net_income": 1_000_000_000_000},
         }
 
