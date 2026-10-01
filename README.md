@@ -1453,7 +1453,7 @@ Open a GitHub Discussion or Issue with:
 ### Community
 
 - **Slack/Discord**: Join Sectors community channels for updates.
-- **Email**: khairil@example.com (maintainer)
+- **Email**: wildanakmalk3023@gmail.com and muzaaqi@yahoo.com
 
 ---
 
